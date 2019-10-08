@@ -3,3 +3,4 @@ discord.py[voice]
 colorlog
 cffi --only-binary all; sys_platform == 'win32'
 -e git+https://github.com/Winding6636/youtube-dl@2019.09.30_modified#egg=youtube-dl
+nndownload

@@ -7,3 +7,7 @@ services:
       - ./config:/usr/src/musicbot/config
       - ./data:/usr/src/musicbot/data
       - ./audio_cache:/usr/src/musicbot/audio_cache
+    logging:
+      options:
+        max-size: "5m"
+        max-file: "3"

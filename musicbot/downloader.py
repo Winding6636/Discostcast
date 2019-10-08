@@ -3,6 +3,8 @@ import asyncio
 import logging
 import functools
 import youtube_dl
+import nndownload
+import subprocess, re
 
 from concurrent.futures import ThreadPoolExecutor
 
@@ -23,8 +25,7 @@ ytdl_format_options = {
     'usenetrc': True
 }
 
-nicotools_format_options = {
-    
+niconico_options = {
 }
 
 # Fuck your useless bugreports message that gets two link embeds and confuses users
@@ -89,3 +90,37 @@ class Downloader:
 
     async def safe_extract_info(self, loop, *args, **kwargs):
         return await loop.run_in_executor(self.thread_pool, functools.partial(self.safe_ytdl.extract_info, *args, **kwargs))
+
+    async def nicodl(self, loop, song_url, output_path):
+        save_path = '' + self.download_folder + '/{id}.{ext}'
+        id = re.search(r'(sm|nm)[0-9]+',output_path)
+        rename_path = 'audio_cache/' + id.group() + '.mp4'
+        log.debug("#[PATH]# : %s",song_url)
+        log.debug("#[PATH]# : %s",save_path)
+        log.debug("#[PATH]# : %s",output_path)
+        log.debug("#[PATH]# : %s",rename_path)
+        
+        def nndl():
+            #nndownload.execute("-n", "-o", outpath, song_url)
+            subprocess.call(["python", "./musicbot/lib/niconico.py", song_url, save_path])
+        
+        try:
+            os.path.isfile(rename_path)
+        except ZeroDivisionError:
+            os.remove(rename_path)
+
+        with ThreadPoolExecutor() as pool:
+            #result = await loop.run_until_complete(pool, nndl)
+            await loop.run_in_executor(self.thread_pool, functools.partial(nndl))
+        
+        try:
+            os.path.isfile(rename_path)
+            try:
+                os.rename(rename_path,output_path)
+            except:
+                pass
+        except Exception as e:
+            log.error('ダウンロードに失敗しました。')
+        
+        return  output_path
+        log.debug("nico.donwload.py_end")

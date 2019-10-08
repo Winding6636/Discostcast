@@ -64,6 +64,10 @@
     "cmd-resume-reply": "`{0.name}` で再生が再開されました",
     "cmd-resume-none": "プレイヤーが一時停止中ではありません",
     "cmd-shuffle-reply": "`{0}` のキューがシャッフルされました",
+    "cmd-shuffle-force-noperms": "強制シャッフルの権限がありません。",
+    "cmd-shuffle-reply-voted-1": "がキューのシャッフルをリクエストしました。\nシャッフルには残り **{0}** {1}賛成が必要です。",
+    "cmd-shuffle-reply-voted-2": "人の",
+    "cmd-shuffle-reply-voted-3": "人の",
     "cmd-clear-reply": "`{0}` のキューがクリアされました",
     "cmd-remove-none": "削除するものがありません！",
     "cmd-remove-reply": "`{1}` が追加した `{0}` を削除しました",
@@ -102,5 +106,7 @@
     "playlists-noperms": "プレイリストを追加する権限がありません",
     "playlists-big": "プレイリストの曲数が多すぎます ({0} > {1})",
     "playlists-limit": "プレイリストの曲数 と あなたが既にキューに追加した曲数の合計が上限を超えています ({0} + {1} > {2})",
-    "karaoke-enabled": "カラオケモードが有効です。無効にしてからお試しください！"
+    "karaoke-enabled": "カラオケモードが有効です。無効にしてからお試しください！",
+    "entry-dl-start": "ダウンロード開始: {}",
+    "entry-dl-end": "ダウンロード完了: {}"
 }

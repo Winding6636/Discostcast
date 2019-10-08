@@ -1389,9 +1389,6 @@ class MusicBot(discord.Client):
         pattern = re.compile(linksRegex)
         matchUrl = pattern.match(song_url)
         song_url = song_url.replace('/', '%2F') if matchUrl is None else song_url
-        #log.debug(pattern)
-        #log.debug(pattern.match(song_url))
-        #log.debug(song_url)
 
         # Rewrite YouTube playlist URLs if the wrong URL type is given
         playlistRegex = r'watch\?v=.+&(list=[^&]+)'
@@ -2030,7 +2027,7 @@ class MusicBot(discord.Client):
         else:
             raise exceptions.CommandError(self.str.get('cmd-resume-none', 'Player is not paused.'), expire_in=30)
 
-    async def cmd_shuffle(self, channel, player):
+    async def cmd_instshuffle(self, channel, player): ## Delete at a later date
         """
         Usage:
             {command_prefix}shuffle
@@ -2053,6 +2050,77 @@ class MusicBot(discord.Client):
 
         await self.safe_delete_message(hand, quiet=True)
         return Response(self.str.get('cmd-shuffle-reply', "Shuffled `{0}`'s queue.").format(player.voice_client.channel.guild), delete_after=15)
+
+    async def cmd_shuffle(self, player, channel, author, message, permissions, voice_channel, param=''):
+        """
+        Usage:
+            {command_prefix}shuffle [force/f]
+
+        Shuffles the server's queue.
+        Owners and those with the forceShuffle permission can add 'force' or 'f' after the command to force skip.
+        """
+        
+        if (param.lower() in ['force', 'f']) or self.config.legacy_skip:
+            if permissions.instaskip \
+                or (self.config.allow_author_skip and author == player.current_entry.meta.get('author', None)):
+
+                player.playlist.shuffle()
+
+                cards = ['\N{BLACK SPADE SUIT}', '\N{BLACK CLUB SUIT}', '\N{BLACK HEART SUIT}', '\N{BLACK DIAMOND SUIT}']
+                random.shuffle(cards)
+
+                hand = await self.safe_send_message(channel, ' '.join(cards))
+                await asyncio.sleep(0.6)
+
+                for x in range(4):
+                    random.shuffle(cards)
+                    await self.safe_edit_message(hand, ' '.join(cards))
+                    await asyncio.sleep(0.6)
+
+                await self.safe_delete_message(hand, quiet=True)
+                return Response(self.str.get('cmd-shuffle-reply', "Shuffled `{0}`'s queue.").format(player.voice_client.channel.guild), delete_after=15)
+            else:
+                raise exceptions.PermissionsError(self.str.get('cmd-shuffle-force-noperms', 'You do not have permission to force shuffle.'), expire_in=30)
+
+        num_voice = sum(1 for m in voice_channel.members if not (
+            m.voice.deaf or m.voice.self_deaf or m == self.user))
+        if num_voice == 0: num_voice = 1 # incase all users are deafened, to avoid divison by zero
+
+        num_skips = player.skip_state.add_skipper(author.id, message)
+
+        shuffle_remaining = min(
+            self.config.skips_required,
+            math.ceil(self.config.skip_ratio_required / (1 / num_voice))  # Number of skips from config ratio
+        ) - num_skips
+
+        if shuffle_remaining <= 0:
+            shufmsg = await self.safe_send_message(channel, "Shuffle the queue.")
+            player.playlist.shuffle()
+            
+            cards = ['\N{BLACK SPADE SUIT}', '\N{BLACK CLUB SUIT}', '\N{BLACK HEART SUIT}', '\N{BLACK DIAMOND SUIT}']
+            random.shuffle(cards)
+
+            hand = await self.safe_send_message(channel, ' '.join(cards))
+            await asyncio.sleep(0.6)
+
+            for x in range(4):
+                random.shuffle(cards)
+                await self.safe_edit_message(hand, ' '.join(cards))
+                await asyncio.sleep(0.6)
+
+            await self.safe_delete_message(hand, quiet=True)
+            await self.safe_delete_message(shufmsg, quiet=True)
+            return Response(self.str.get('cmd-shuffle-reply', "Shuffled `{0}`'s queue.").format(player.voice_client.channel.guild), delete_after=15)
+            
+        else:
+            return Response(
+                self.str.get('cmd-shuffle-reply-voted-1', 'A shuffle request was made.\n**{0}** more {1} required to vote to shuffle this queue.').format(
+                    shuffle_remaining,
+                    self.str.get('cmd-shuffle-reply-voted-2', 'person is') if shuffle_remaining == 1 else self.str.get('cmd-shuffle-reply-voted-3', 'people are')
+                ),
+                reply=True,
+                delete_after=20
+            )
 
     async def cmd_clear(self, player, author):
         """
@@ -2290,12 +2358,13 @@ class MusicBot(discord.Client):
             else:
                 raise exceptions.CommandError(self.str.get('cmd-option-invalid-param' ,'The parameters provided were invalid.'))
 
-    async def cmd_queue(self, channel, player):
+    async def cmd_queue(self, channel, player, author, param=''):
         """
         Usage:
-            {command_prefix}queue
+            {command_prefix}queue [all/a]
 
         Prints the current song queue.
+        Send all current songs reply [all/a] option.
         """
 
         lines = []
@@ -2323,10 +2392,16 @@ class MusicBot(discord.Client):
 
             currentlinesum = sum(len(x) + 1 for x in lines)  # +1 is for newline char
 
-            if (currentlinesum + len(nextline) + len(andmoretext) > DISCORD_MSG_CHAR_LIMIT) or (i > self.config.queue_length):
-                if currentlinesum + len(andmoretext):
-                    unlisted += 1
-                    continue
+            if (param.lower() in ['all', 'a']):
+                if (currentlinesum + len(nextline) + len(andmoretext) > DISCORD_MSG_CHAR_LIMIT):
+                    if currentlinesum + len(andmoretext):
+                        unlisted += 1
+                        continue
+            else:
+                if (currentlinesum + len(nextline) + len(andmoretext) > DISCORD_MSG_CHAR_LIMIT) or (i > self.config.queue_length):
+                    if currentlinesum + len(andmoretext):
+                        unlisted += 1
+                        continue
 
             lines.append(nextline)
 
@@ -2337,8 +2412,12 @@ class MusicBot(discord.Client):
             lines.append(
                 self.str.get('cmd-queue-none', 'There are no songs queued! Queue something with {}play.').format(self.config.command_prefix))
 
-        message = '\n'.join(lines)
-        return Response(message, delete_after=30)
+        if (param.lower() in ['all', 'a']):
+            message = '\n:⋅:⋅:⋅:⋅:⋅:⋅:\n'+ '\n'.join(lines) + '\n:⋅:⋅:⋅:⋅:⋅:⋅:\n'
+            await self.safe_send_message(author, message)
+        else:
+            message = '\n'.join(lines)
+            return Response(message, delete_after=30)
 
     async def cmd_clean(self, message, channel, guild, author, search_range=50):
         """
@@ -2607,7 +2686,7 @@ class MusicBot(discord.Client):
         Will not properly load new dependencies or file updates unless fully shutdown
         and restarted.
         """
-        await self.safe_send_message(channel, "\N{WAVING HAND SIGN} 再起動します。「またね \N{WAVING HAND SIGN} 」\n 本体及び依存系統の変更の場合プログラム自体を立ち上げなおす必要があります。")
+        await self.safe_send_message(channel, "再起動します。「またね \N{WAVING HAND SIGN} 」\n 本体及び依存系統の変更の場合プログラム自体を立ち上げなおす必要があります。")
 
         player = self.get_player_in(channel.guild)
         if player and player.is_paused:
@@ -2623,7 +2702,7 @@ class MusicBot(discord.Client):
         
         Disconnects from voice channels and closes the bot process.
         """
-        await self.safe_send_message(channel, "\N{WAVING HAND SIGN}")
+        await self.safe_send_message(channel, "\N{WAVING HAND SIGN} ボットの電源を切る準備ができました。\nShutdown....now")
         
         player = self.get_player_in(channel.guild)
         if player and player.is_paused:
