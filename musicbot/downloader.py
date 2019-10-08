@@ -6,6 +6,7 @@ import youtube_dl
 import nndownload
 import subprocess, re
 
+import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 
 log = logging.getLogger(__name__)
@@ -102,14 +103,14 @@ class Downloader:
         
         def nndl():
             #nndownload.execute("-n", "-o", outpath, song_url)
-            subprocess.call(["python", "./musicbot/lib/niconico.py", song_url, save_path])
+            subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path])
         
         try:
             os.path.isfile(rename_path)
         except ZeroDivisionError:
             os.remove(rename_path)
 
-        with ThreadPoolExecutor() as pool:
+        with concurrent.futures.ThreadPoolExecutor() as pool:
             #result = await loop.run_until_complete(pool, nndl)
             await loop.run_in_executor(self.thread_pool, functools.partial(nndl))
         

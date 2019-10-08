@@ -325,7 +325,19 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
         urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
         try:
-            if ( (str(urlpattern.search(str(self.url)).group(1))) == 'nicovideo.jp'):
+            if (re.search('^(sm|nm)', self.url)):
+                log.debug ("sm_nm")
+                song_url = 'https://nico.ms/' + self.url
+                retry = True
+                while retry:
+                    try:
+                        #result = await self.playlist.downloader.nicodl(self.url, self.expected_filename)
+                        result = await self.playlist.downloader.nicodl(self.playlist.loop, song_url, self.expected_filename)
+                        self.filename = unhashed_fname =  result
+                        break
+                    except Exception as e:
+                        raise ExtractionError(e)
+            elif ( (str(urlpattern.search(str(self.url)).group(1))) == 'nicovideo.jp'):
                 log.debug ("nicovideo.jp")
                 retry = True
                 while retry:
@@ -376,18 +388,32 @@ class URLPlaylistEntry(BasePlaylistEntry):
                         os.rename(unhashed_fname, self.filename)
 
         except AttributeError:
-            if (re.search('^(sm|nm)', self.url)):
-                log.debug ("sm_nm")
-                song_url = 'https://nico.ms/' + self.url
-                retry = True
-                while retry:
-                    try:
-                        #result = await self.playlist.downloader.nicodl(self.url, self.expected_filename)
-                        result = await self.playlist.downloader.nicodl(self.playlist.loop, song_url, self.expected_filename)
-                        self.filename = unhashed_fname =  result
-                        break
-                    except Exception as e:
-                        raise ExtractionError(e)
+            log.debug("Not Niconico TubeShort")
+            retry = True
+            while retry:
+                try:
+                    result = await self.playlist.downloader.extract_info(self.playlist.loop, self.url, download=True)
+                    break
+                except Exception as e:
+                    raise ExtractionError(e)
+
+            if result is None:
+                log.critical("YTDL has failed, everyone panic")
+                raise ExtractionError("ytdl broke and hell if I know why")
+                # What the fuck do I do now?
+                
+            self.filename = unhashed_fname = self.playlist.downloader.ytdl.prepare_filename(result)
+                
+            if hash:
+                # insert the 8 last characters of the file hash to the file name to ensure uniqueness
+                self.filename = md5sum(unhashed_fname, 8).join('-.').join(unhashed_fname.rsplit('.', 1))
+
+                if os.path.isfile(self.filename):
+                    # Oh bother it was actually there.
+                    os.unlink(unhashed_fname)
+                else:
+                    # Move the temporary file to it's final location.
+                    os.rename(unhashed_fname, self.filename)
 
         log.info(self.playlist.bot.str.get("entry-dl-end","Download complete: {}").format(self.url))
         
