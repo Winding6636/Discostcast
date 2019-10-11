@@ -331,8 +331,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
-                        #result = await self.playlist.downloader.nicodl(self.url, self.expected_filename)
-                        result = await self.playlist.downloader.nicodl(self.playlist.loop, song_url, self.expected_filename)
+                        #result = await self.playlist.downloader.niconicodl(self.url, self.expected_filename)
+                        result = await self.playlist.downloader.niconicodl(self.playlist.loop, song_url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
                     except Exception as e:
@@ -342,8 +342,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
-                        #result = await self.playlist.downloader.nicodl(self.url, self.expected_filename)
-                        result = await self.playlist.downloader.nicodl(self.playlist.loop, self.url, self.expected_filename)
+                        #result = await self.playlist.downloader.niconicodl(self.url, self.expected_filename)
+                        result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
                     except Exception as e:
@@ -353,8 +353,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
-                        #result = await self.playlist.downloader.nicodl(self.url, self.expected_filename)
-                        result = await self.playlist.downloader.nicodl(self.playlist.loop, self.url, self.expected_filename)
+                        #result = await self.playlist.downloader.niconicodl(self.url, self.expected_filename)
+                        result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
                     except Exception as e:

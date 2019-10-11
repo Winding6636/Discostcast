@@ -19,7 +19,7 @@ ytdl_format_options = {
     'nocheckcertificate': True,
     'ignoreerrors': False,
     'logtostderr': False,
-    'quiet': False,
+    'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
     'source_address': '0.0.0.0',
@@ -92,7 +92,7 @@ class Downloader:
     async def safe_extract_info(self, loop, *args, **kwargs):
         return await loop.run_in_executor(self.thread_pool, functools.partial(self.safe_ytdl.extract_info, *args, **kwargs))
 
-    async def nicodl(self, loop, song_url, output_path):
+    async def niconicodl(self, loop, song_url, output_path):
         save_path = '' + self.download_folder + '/{id}.{ext}'
         id = re.search(r'(sm|nm)[0-9]+',output_path)
         rename_path = 'audio_cache/' + id.group() + '.mp4'
@@ -101,9 +101,16 @@ class Downloader:
         log.debug("#[PATH]# : %s",output_path)
         log.debug("#[PATH]# : %s",rename_path)
         
-        def nndl():
-            #nndownload.execute("-n", "-o", outpath, song_url)
-            subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path])
+        def downloader():
+            try:
+                subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path],timeout=120)
+            except subprocess.TimeoutExpired as e:
+                log.debug("[DownloadProcess] : Timeout.   -   Retry...")
+                try:
+                    subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path],timeout=240)
+                except subprocess.TimeoutExpired as e:
+                    log.debug("[DownloadProcess] : Timeout.   -   DownloadError.")
+                    pass
         
         try:
             os.path.isfile(rename_path)
@@ -111,8 +118,7 @@ class Downloader:
             os.remove(rename_path)
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
-            #result = await loop.run_until_complete(pool, nndl)
-            await loop.run_in_executor(self.thread_pool, functools.partial(nndl))
+            await loop.run_in_executor(self.thread_pool, functools.partial(downloader))
         
         try:
             os.path.isfile(rename_path)
@@ -124,4 +130,3 @@ class Downloader:
             log.error('ダウンロードに失敗しました。')
         
         return  output_path
-        log.debug("nico.donwload.py_end")
