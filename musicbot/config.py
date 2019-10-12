@@ -231,6 +231,8 @@ class Config:
 
         if not self.footer_text:
             self.footer_text = ConfigDefaults.footer_text
+        else:
+            self.footer_text = ('{0} - {1}'.format(self.footer_text,BOTVERSION))
 
         if not self.footer_url:
             self.footer_url = ConfigDefaults.footer_url

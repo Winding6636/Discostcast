@@ -100,22 +100,27 @@ class Downloader:
         log.debug("#[PATH]# : %s",save_path)
         log.debug("#[PATH]# : %s",output_path)
         log.debug("#[PATH]# : %s",rename_path)
-        
-        def downloader():
+
+        def filechkpass():
+            log.debug("FileExistenceCheck")
             try:
-                subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path],timeout=120)
-            except subprocess.TimeoutExpired as e:
-                log.debug("[DownloadProcess] : Timeout.   -   Retry...")
+                os.path.isfile(rename_path)
+            except ZeroDivisionError:
+                os.remove(rename_path)
+
+        def downloader():
+            retime = [ 20, 30, 120, 240, 320 ]
+            for _ in retime:
                 try:
-                    subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path],timeout=240)
+                    subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path],timeout=_)
+                    break
                 except subprocess.TimeoutExpired as e:
-                    log.debug("[DownloadProcess] : Timeout.   -   DownloadError.")
-                    pass
-        
-        try:
-            os.path.isfile(rename_path)
-        except ZeroDivisionError:
-            os.remove(rename_path)
+                    filechkpass()
+                    log.debug("[DownloadProcess] : Timeout. - " + str(_) + "s - Retry...")
+                except:
+                    filechkpass()
+                    log.debug('[DownloadProcess] :  Download Error...')
+
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
             await loop.run_in_executor(self.thread_pool, functools.partial(downloader))
