@@ -8,35 +8,29 @@ import time
 def downloader(song_url, output_path, quality):
     try:
         #nndownload.execute("-g", "-n", "-m", "-vq", "low", "-aq", "archive_aac_192kbps", "-l", "--thread", "8", "-o", output_path, song_url)
-        nndownload.execute("-g", "-n", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "10", "-o", output_path, song_url)
-    except nndownload.nndownload.FormatNotAvailableException as e:
+        nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
+    except (nndownload.nndownload.FormatNotAvailableException,nndownload.nndownload.ParameterExtractionException) as e:
         try:
             time.sleep(1)
-            nndownload.execute("-g", "-n", "-vq", quality, "-aq", "archive_aac_64kbps", "--thread", "10", "-o", output_path, song_url)
+            nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_64kbps", "--thread", "8", "-o", output_path, song_url)
         except:
-            time.sleep(1)
-            nndownload.execute("-g", "-n", "-vq", quality,  "--thread", "10", "-o", output_path, song_url)
+            print("[downloader] : safe")
+            nndownload.execute("-q", "-g", "-n", "--thread", "10", "-o", output_path, song_url)
     except ZeroDivisionError as e:
         print("Donwload Failed : ", e.args)
 
 async def select(loop, song_url, output_path):
-    try:
-        downloader(song_url, output_path, 'archive_h264_360p')
-    except:
+    #for quality in [ "archive_h264_200kbps_360p", "archive_h264_360p", "archive_h264_360p_low", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
+    for quality in [ "archive_h264_360p_low", "archive_h264_360p", "archive_h264_200kbps_360p", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
         try:
-            time.sleep(2)
-            downloader(song_url, output_path, 'archive_h264_360p_low')
+            downloader(song_url, output_path, quality)
+            result = True
+            break
         except:
-            try:
-                time.sleep(2)
-                downloader(song_url, output_path, 'archive_h264_200kbps_360p')
-            except:
-                try:
-                    time.sleep(2)
-                    downloader(song_url, output_path, 'archive_h264_300kbps_360p')
-                except:
-                    time.sleep(2)
-                    downloader(song_url, output_path, None)
+            print("ERROR")
+    else:
+        result = False
+
 
 if __name__ == "__main__":
     #print('sys.argv: ', sys.argv)

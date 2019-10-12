@@ -6,7 +6,7 @@ import re
 import sys
 
 from enum import Enum
-from .constructs import Serializable
+from .constructs import Serializable,Response
 from .exceptions import ExtractionError
 from .utils import get_header, md5sum
 
@@ -38,7 +38,7 @@ class BasePlaylistEntry(Serializable):
     async def _download(self):
         raise NotImplementedError
 
-    def get_ready_future(self):
+    def get_ready_future(self, entry):
         """
         Returns a future that will fire when the song is ready to be played. The future will either fire with the result (being the entry) or an exception
         as to why the song download failed.
@@ -51,7 +51,7 @@ class BasePlaylistEntry(Serializable):
         else:
             # If we request a ready future, let's ensure that it'll actually resolve at one point.
             self._waiting_futures.append(future)
-            asyncio.ensure_future(self._download())
+            asyncio.ensure_future(self._download(entry))
 
         log.debug('Created future for {0}'.format(self.filename))
         return future
@@ -150,7 +150,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
             log.error("Could not load {}".format(cls.__name__), exc_info=e)
 
     # noinspection PyTypeChecker
-    async def _download(self):
+    async def _download(self, entry):
         if self._is_downloading:
             return
 
@@ -216,7 +216,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                         self.filename.rsplit('.', 1)[-1]
                     ))
                 else:
-                    await self._really_download()
+                    await self._really_download(entry)
 
             if self.playlist.bot.config.use_experimental_equalization:
                 try:
@@ -306,7 +306,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
         output = await self.run_command(cmd)
         output = output.decode("utf-8")
         log.debug('#### FFMPEG LOG ####')
-        log.debug(output)
+        #log.debug(output)
 
         try:
             os.path.isfile(output_file)
@@ -320,12 +320,13 @@ class URLPlaylistEntry(BasePlaylistEntry):
         log.info('{0}秒カット処理しました。'.format(self.playlist.bot.config.bgmlength))
 
     # noinspection PyShadowingBuiltins
-    async def _really_download(self, *, hash=False):
+    async def _really_download(self, entry, *, hash=False):
+        channel = entry.meta.get('channel', None)
         log.info(self.playlist.bot.str.get("entry-dl-start","Download started: {}").format(self.url))
-
+        dlmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-dl-start","Download Started: `{}`").format(str(entry.title))),  quiet=True)
         urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
         try:
-            if (re.search('^(sm|nm)', self.url)):
+            if (re.search('^(sm|nm|so)', self.url)):
                 log.debug ("sm_nm")
                 song_url = 'https://nico.ms/' + self.url
                 retry = True
@@ -416,7 +417,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
                     os.rename(unhashed_fname, self.filename)
 
         log.info(self.playlist.bot.str.get("entry-dl-end","Download complete: {}").format(self.url))
-        
+        await self.playlist.bot.safe_delete_message(dlmsg)
+        return Response(self.playlist.bot.str.get("entry-dl-end","Download Complete: `{}`").format(str(entry.title)), delete_after=30)
 
 
 class StreamPlaylistEntry(BasePlaylistEntry):

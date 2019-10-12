@@ -309,7 +309,7 @@ class Playlist(EventEmitter, Serializable):
         self.emit('entry-added', playlist=self, entry=entry)
 
         if self.peek() is entry:
-            entry.get_ready_future()
+            entry.get_ready_future(entry)
 
     def remove_entry(self, index):
         del self.entries[index]
@@ -329,9 +329,9 @@ class Playlist(EventEmitter, Serializable):
         if predownload_next:
             next_entry = self.peek()
             if next_entry:
-                next_entry.get_ready_future()
+                next_entry.get_ready_future(entry)
 
-        return await entry.get_ready_future()
+        return await entry.get_ready_future(entry)
 
     def peek(self):
         """

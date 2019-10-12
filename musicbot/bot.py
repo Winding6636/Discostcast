@@ -615,7 +615,6 @@ class MusicBot(discord.Client):
                     player.once('play', lambda player, **_: _autopause(player))
 
                 try:
-                    #log.debug("add_entry on_player_finished_playing")
                     await player.playlist.add_entry(song_url, channel=None, author=None)
                 except exceptions.ExtractionError as e:
                     log.error("Error adding song from autoplaylist: {}".format(e))
@@ -1472,7 +1471,7 @@ class MusicBot(discord.Client):
                     except:
                         info_process = None
 
-                    log.debug(info)
+                    log.debug(info) #ytdl_jsonresult
 
                     if info_process and info and info_process.get('_type', None) == 'playlist' and 'entries' not in info and not info.get('url', '').startswith('ytsearch'):
                         use_url = info_process.get('webpage_url', None) or info_process.get('url', None)
@@ -2381,9 +2380,13 @@ class MusicBot(discord.Client):
 
         if player.is_playing:
             # TODO: Fix timedelta garbage with util function
-            song_progress = ftimedelta(timedelta(seconds=player.progress))
-            song_total = ftimedelta(timedelta(seconds=player.current_entry.duration))
-            prog_str = '`[%s/%s]`' % (song_progress, song_total)
+            try:
+                song_progress = ftimedelta(timedelta(seconds=player.progress))
+                song_total = ftimedelta(timedelta(seconds=player.current_entry.duration))
+                prog_str = '`[%s/%s]`' % (song_progress, song_total)
+            except:
+                log.error("TimeDeltaError... ")
+                return Response('TimedeltaError : しばらくお待ち下さい。', delete_after=30)
 
             if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
                 lines.append(self.str.get('cmd-queue-playing-author', "Currently playing: `{0}` added by `{1}` {2}\n").format(
