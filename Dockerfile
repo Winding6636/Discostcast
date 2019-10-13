@@ -27,6 +27,8 @@ RUN  git clone https://github.com/Winding6636/DiscoMusicBot_py.git /usr/src/musi
 # pip依存関係をインストールする
 RUN pip3 install --upgrade pip \
 && pip3 install --no-cache-dir -r requirements.txt
+# nndownloadのsetup.pyの都合上requireとは別でインストール実行
+RUN pip3 install nndownload
 ADD config /usr/src/musicbot/config
 ADD .netrc /root/.netrc
 RUN chmod og-rw /root/.netrc
