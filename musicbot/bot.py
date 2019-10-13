@@ -2374,9 +2374,13 @@ class MusicBot(discord.Client):
 
         if player.is_playing:
             # TODO: Fix timedelta garbage with util function
-            song_progress = ftimedelta(timedelta(seconds=player.progress))
-            song_total = ftimedelta(timedelta(seconds=player.current_entry.duration))
-            prog_str = '`[%s/%s]`' % (song_progress, song_total)
+            try:
+                song_progress = ftimedelta(timedelta(seconds=player.progress))
+                song_total = ftimedelta(timedelta(seconds=player.current_entry.duration))
+                prog_str = '`[%s/%s]`' % (song_progress, song_total)
+            except:
+                log.error("TimeDeltaError... ")
+                return Response('TimedeltaError : しばらくお待ち下さい。ダメなら管理者に連絡してください。', delete_after=60)
 
             if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
                 lines.append(self.str.get('cmd-queue-playing-author', "Currently playing: `{0}` added by `{1}` {2}\n").format(
