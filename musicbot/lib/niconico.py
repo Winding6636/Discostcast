@@ -19,6 +19,20 @@ def downloader(song_url, output_path, quality):
     except ZeroDivisionError as e:
         print("Donwload Failed : ", e.args)
 
+def safe_downloader(song_url, output_path, quality):
+    try:
+        #nndownload.execute("-g", "-n", "-m", "-vq", "low", "-aq", "archive_aac_192kbps", "-l", "--thread", "8", "-o", output_path, song_url)
+        nndownload.execute("-q", "-g", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
+    except (nndownload.nndownload.FormatNotAvailableException,nndownload.nndownload.ParameterExtractionException) as e:
+        try:
+            time.sleep(1)
+            nndownload.execute("-q", "-g", "-vq", quality, "-aq", "archive_aac_64kbps", "--thread", "8", "-o", output_path, song_url)
+        except:
+            print("[downloader] : safe")
+            nndownload.execute("-q", "-g", "--thread", "10", "-o", output_path, song_url)
+    except ZeroDivisionError as e:
+        print("Donwload Failed : ", e.args)
+
 async def select(loop, song_url, output_path):
     #for quality in [ "archive_h264_200kbps_360p", "archive_h264_360p", "archive_h264_360p_low", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
     for quality in [ "archive_h264_360p_low", "archive_h264_360p", "archive_h264_200kbps_360p", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
@@ -27,7 +41,8 @@ async def select(loop, song_url, output_path):
             result = True
             break
         except:
-            print("ERROR")
+            print("[downloader] : .netrc nicovideo.jp notfound.")
+            downloader(song_url, output_path, quality)
     else:
         result = False
 

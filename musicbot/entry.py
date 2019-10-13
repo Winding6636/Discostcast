@@ -322,7 +322,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
     async def _really_download(self, entry, *, hash=False):
         log.info(self.playlist.bot.str.get("entry-dl-start","Download started: {}").format(self.url))
         if entry.meta.get('channel') != None: #AutoPlaylistavoidance
-            log.debug(vars(entry))
+            #log.debug(vars(entry))
             channel = entry.meta.get('channel', None)
             dlmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-dl-start","Download Started: `{}`").format(self.url)))
             await self.playlist.bot.send_typing(channel)
