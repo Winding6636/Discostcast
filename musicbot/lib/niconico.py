@@ -3,29 +3,40 @@ import sys
 import asyncio
 import concurrent.futures
 import nndownload
+import time
 
-def nndl(song_url,output_path):
+def downloader(song_url, output_path, quality):
     try:
-        nndownload.execute("-g", "-q", "--thread", "8", "-o", output_path, song_url)
-    except Exception as e:
-        raise ExtractionError(e)
-        print("Donwload Failed.")
+        #nndownload.execute("-g", "-n", "-m", "-vq", "low", "-aq", "archive_aac_192kbps", "-l", "--thread", "8", "-o", output_path, song_url)
+        nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
+    except (nndownload.nndownload.FormatNotAvailableException,nndownload.nndownload.ParameterExtractionException) as e:
+        try:
+            time.sleep(1)
+            nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_64kbps", "--thread", "8", "-o", output_path, song_url)
+        except:
+            print("[downloader] : safe")
+            nndownload.execute("-q", "-g", "-n", "--thread", "10", "-o", output_path, song_url)
+    except ZeroDivisionError as e:
+        print("Donwload Failed : ", e.args)
 
-async def ncdl(loop):
-    try:
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            await loop.run_in_executor(pool, nndl(url,output_path))
-            print('custom thread pool')
-    finally:
-        print("DLProcessEND")
+async def select(loop, song_url, output_path):
+    #for quality in [ "archive_h264_200kbps_360p", "archive_h264_360p", "archive_h264_360p_low", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
+    for quality in [ "archive_h264_360p_low", "archive_h264_360p", "archive_h264_200kbps_360p", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
+        try:
+            downloader(song_url, output_path, quality)
+            result = True
+            break
+        except:
+            print("ERROR")
+    else:
+        result = False
+
 
 if __name__ == "__main__":
     #print('sys.argv: ', sys.argv)
     #print('sys.argv[1]: ', sys.argv[1])
     #print('sys.argv[2]: ', sys.argv[2])
     loop = asyncio.get_event_loop()
-    try:
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            result = loop.run_in_executor(pool, nndl(sys.argv[1],sys.argv[2]))
-    finally:
-        print("[nicomodule] : end:main")
+    print("[nicomodule] : run:main")
+    loop.run_until_complete(select(loop, sys.argv[1], sys.argv[2]))
+    print("[nicomodule] : end:main")

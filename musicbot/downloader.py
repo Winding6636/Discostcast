@@ -4,7 +4,7 @@ import logging
 import functools
 import youtube_dl
 import nndownload
-import subprocess, re
+import subprocess, re, time
 
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
@@ -19,7 +19,7 @@ ytdl_format_options = {
     'nocheckcertificate': True,
     'ignoreerrors': False,
     'logtostderr': False,
-    'quiet': False,
+    'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
     'source_address': '0.0.0.0',
@@ -92,36 +92,57 @@ class Downloader:
     async def safe_extract_info(self, loop, *args, **kwargs):
         return await loop.run_in_executor(self.thread_pool, functools.partial(self.safe_ytdl.extract_info, *args, **kwargs))
 
-    async def nicodl(self, loop, song_url, output_path):
-        save_path = '' + self.download_folder + '/{id}.{ext}'
-        id = re.search(r'(sm|nm)[0-9]+',output_path)
-        rename_path = 'audio_cache/' + id.group() + '.mp4'
+    async def niconicodl(self, loop, song_url, output_path):
+        #save_path = '' + self.download_folder + '/{id}.mp4'
+        id = re.search(r'(sm|nm|so)[0-9]+',output_path)
+        if id != None:
+            save_path = 'audio_cache/' + id.group() + '.mp4'
+        else:
+            id = re.search(r'[0-9]+',output_path)
+            save_path = 'audio_cache/' + id.group() + '.mp4'
+        
         log.debug("#[PATH]# : %s",song_url)
         log.debug("#[PATH]# : %s",save_path)
         log.debug("#[PATH]# : %s",output_path)
-        log.debug("#[PATH]# : %s",rename_path)
-        
-        def nndl():
-            #nndownload.execute("-n", "-o", outpath, song_url)
-            subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path])
-        
-        try:
-            os.path.isfile(rename_path)
-        except ZeroDivisionError:
-            os.remove(rename_path)
+        #log.debug("#[PATH]# : %s",rename_path)
+
+        def filechkpass():
+            log.debug("FileExistenceCheck")
+            try:
+                os.path.isfile(rename_path)
+            except ZeroDivisionError:
+                os.remove(rename_path)
+
+        def downloader():
+            retime = [ 20, 30, 120, 240, 320 ]
+            for _ in retime:
+                try:
+                    subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path],timeout=_)
+                    break
+                except subprocess.TimeoutExpired as e:
+                    filechkpass()
+                    log.debug("[DownloadProcess] : Timeout. - " + str(_) + "s - Retry...")
+                    time.sleep(3)
+                except:
+                    filechkpass()
+                    log.debug('[DownloadProcess] :  Download Error...')
+                    time.sleep(3)
+
 
         with concurrent.futures.ThreadPoolExecutor() as pool:
-            #result = await loop.run_until_complete(pool, nndl)
-            await loop.run_in_executor(self.thread_pool, functools.partial(nndl))
+            await loop.run_in_executor(pool, functools.partial(downloader))
         
         try:
-            os.path.isfile(rename_path)
+            print(save_path)
+            os.path.isfile(save_path)
             try:
-                os.rename(rename_path,output_path)
+                os.rename(save_path,output_path)
             except:
                 pass
         except Exception as e:
             log.error('ダウンロードに失敗しました。')
-        
+            result = False
+        else:
+            result = True
+
         return  output_path
-        log.debug("nico.donwload.py_end")
