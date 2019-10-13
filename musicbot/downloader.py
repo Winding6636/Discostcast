@@ -109,9 +109,9 @@ class Downloader:
         def filechkpass():
             log.debug("FileExistenceCheck")
             try:
-                os.path.isfile(rename_path)
+                os.path.isfile(save_path)
             except ZeroDivisionError:
-                os.remove(rename_path)
+                os.remove(save_path)
 
         def downloader():
             retime = [ 20, 30, 120, 240, 320 ]
