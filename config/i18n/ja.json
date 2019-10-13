@@ -23,7 +23,7 @@
     "cmd-play-spotify-unavailable": "Spotify URIの設定が行われていません。ボットの設定を確認してください。",
     "cmd-play-limit": "あなたのキュー数が上限に達しました ({0})",
     "cmd-play-noinfo": "この動画は再生できません。 {0}stream をお試しください。",
-    "cmd-play-nodata": "検索に失敗しました。youtube-dl がデータを送信していません。問題が継続的に発生する場合は、ボットの再起動が必要です。",
+    "cmd-play-nodata": "検索に失敗しました。URL/動画IDを確認してください。\nyoutube-dl がデータを送信していません。問題が継続的に発生する場合は、ボットの再起動が必要です。",
     "cmd-play-playlist-error": "キューの追加に失敗しました:\n`{0}`",
     "cmd-play-playlist-gathering-1": "プレイリストから {0} 曲の情報を取得しています{1}",
     "cmd-play-playlist-gathering-2": "、 完了まで: {0} 秒",
@@ -107,6 +107,6 @@
     "playlists-big": "プレイリストの曲数が多すぎます ({0} > {1})",
     "playlists-limit": "プレイリストの曲数 と あなたが既にキューに追加した曲数の合計が上限を超えています ({0} + {1} > {2})",
     "karaoke-enabled": "カラオケモードが有効です。無効にしてからお試しください！",
-    "entry-dl-start": "ダウンロード開始: {}",
-    "entry-dl-end": "ダウンロード完了: {}"
+    "entry-dl-start": "ダウンロード開始: `{} `",
+    "entry-dl-end": "ダウンロード完了: `{} `"
 }
