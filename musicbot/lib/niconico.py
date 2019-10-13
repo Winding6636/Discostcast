@@ -40,9 +40,11 @@ async def select(loop, song_url, output_path):
             downloader(song_url, output_path, quality)
             result = True
             break
-        except:
+        except netrc.NetrcParseError:
             print("[downloader] : .netrc nicovideo.jp notfound.")
-            downloader(song_url, output_path, quality)
+            safe_downloader(song_url, output_path, quality)
+        except:
+            print("What Error!")
     else:
         result = False
 
