@@ -41,10 +41,12 @@ async def select(loop, song_url, output_path):
             result = True
             break
         except:
-            print("[downloader] : .netrc nicovideo.jp notfound.")
-            safe_downloader(song_url, output_path, quality)
-        #except:
-            #print("What Error!")
+            try:
+                print("[downloader] : .netrc nicovideo.jp notfound.")
+                safe_downloader(song_url, output_path, quality)
+                break
+            except:
+                pass
     else:
         result = False
 

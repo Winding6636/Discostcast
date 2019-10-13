@@ -133,7 +133,6 @@ class Downloader:
             await loop.run_in_executor(pool, functools.partial(downloader))
         
         try:
-            print(save_path)
             os.path.isfile(save_path)
             try:
                 os.rename(save_path,output_path)
