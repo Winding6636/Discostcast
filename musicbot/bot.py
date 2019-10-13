@@ -459,6 +459,7 @@ class MusicBot(discord.Client):
 
     async def on_player_play(self, player, entry):
         log.debug('Running on_player_play')
+        #log.debug(vars(entry))
         await self.update_now_playing_status(entry)
         player.skip_state.reset()
 
@@ -543,6 +544,10 @@ class MusicBot(discord.Client):
 
     async def on_player_finished_playing(self, player, **_):
         log.debug('Running on_player_finished_playing')
+
+    async def on_download_now(self, player, **_):
+        log.debug("download status")
+        await self.update_now_playing_status()
 
         # delete last_np_msg somewhere if we have cached it
         if self.config.delete_nowplaying:
@@ -1620,6 +1625,7 @@ class MusicBot(discord.Client):
                     )
 
                 entry, position = await player.playlist.add_entry(song_url, channel=channel, author=author)
+                #log.debug("entry,position add_entry %s",entry)
 
                 reply_text = self.str.get('cmd-play-song-reply', "Enqueued `%s` to be played. Position in queue: %s")
                 btext = entry.title

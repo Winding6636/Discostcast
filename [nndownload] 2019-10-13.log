@@ -1,0 +1,32 @@
+2019-10-13 01:35:51,338 WARNING: Proceeding with no login. Some videos may not be available for download or may only be available in a lower quality. For access to all videos, please provide a login with --username/--password or --netrc.
+2019-10-13 01:35:51,888 INFO: Performing initial API request...
+2019-10-13 01:35:52,014 INFO: Performed initial API request.
+2019-10-13 01:35:52,043 INFO: Downloading so35603562 to "./tmp/0.mp4"...
+2019-10-13 01:35:52,122 WARNING: Multithreading is experimental and will overwrite any existing files.
+2019-10-13 01:36:07,072 INFO: Finished downloading so35603562 to "./tmp/0.mp4".
+2019-10-13 01:41:24,862 WARNING: Proceeding with no login. Some videos may not be available for download or may only be available in a lower quality. For access to all videos, please provide a login with --username/--password or --netrc.
+2019-10-13 01:41:24,958 ERROR: FormatNotAvailableException: Could not retrieve video info
+Traceback (most recent call last):
+  File "/home/winding/.local/lib/python3.7/site-packages/nndownload/nndownload.py", line 1109, in main
+    process_url_mo(session, url_mo)
+  File "/home/winding/.local/lib/python3.7/site-packages/nndownload/nndownload.py", line 1075, in process_url_mo
+    request_video(session, url_id)
+  File "/home/winding/.local/lib/python3.7/site-packages/nndownload/nndownload.py", line 410, in request_video
+    raise FormatNotAvailableException("Could not retrieve video info")
+nndownload.nndownload.FormatNotAvailableException: Could not retrieve video info
+2019-10-13 01:42:04,394 WARNING: Proceeding with no login. Some videos may not be available for download or may only be available in a lower quality. For access to all videos, please provide a login with --username/--password or --netrc.
+2019-10-13 01:42:04,476 ERROR: FormatNotAvailableException: Could not retrieve video info
+Traceback (most recent call last):
+  File "/home/winding/.local/lib/python3.7/site-packages/nndownload/nndownload.py", line 1109, in main
+    process_url_mo(session, url_mo)
+  File "/home/winding/.local/lib/python3.7/site-packages/nndownload/nndownload.py", line 1075, in process_url_mo
+    request_video(session, url_id)
+  File "/home/winding/.local/lib/python3.7/site-packages/nndownload/nndownload.py", line 410, in request_video
+    raise FormatNotAvailableException("Could not retrieve video info")
+nndownload.nndownload.FormatNotAvailableException: Could not retrieve video info
+2019-10-13 01:42:08,398 WARNING: Proceeding with no login. Some videos may not be available for download or may only be available in a lower quality. For access to all videos, please provide a login with --username/--password or --netrc.
+2019-10-13 01:42:08,935 INFO: Performing initial API request...
+2019-10-13 01:42:09,094 INFO: Performed initial API request.
+2019-10-13 01:42:09,123 INFO: Downloading so35603562 to "./tmp/0.mp4"...
+2019-10-13 01:42:09,200 WARNING: Multithreading is experimental and will overwrite any existing files.
+2019-10-13 01:42:24,151 INFO: Finished downloading so35603562 to "./tmp/0.mp4".
