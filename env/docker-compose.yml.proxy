@@ -1,0 +1,16 @@
+version: '3'
+services: 
+  musicbot:
+    container_name: InstanceMusicBot
+    build:  ./
+    volumes:
+      - ./config:/usr/src/musicbot/config
+      - ./data:/usr/src/musicbot/data
+      - ./audio_cache:/usr/src/musicbot/audio_cache
+    logging:
+      options:
+        max-size: "50k"
+        max-file: "5"
+    environment:
+        HTTP_PROXY: http://proxy.example.com
+        HTTPS_PROXY: http://proxy.example.com
