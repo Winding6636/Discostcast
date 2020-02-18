@@ -1,4 +1,4 @@
-FROM 3.7-alpine
+FROM python3.7-alpine
 LABEL maintainer="Winding"
 
 # Const_pkg
