@@ -15,6 +15,8 @@ RUN apk update \
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
   gcc \
+  g++ \
+  libc-dev \
   libffi-dev \
   make \
   musl-dev \
