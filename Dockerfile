@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM 3.7-alpine
 LABEL maintainer="Winding"
 
 # Const_pkg
@@ -7,7 +7,6 @@ RUN apk update \
   ca-certificates \
   ffmpeg \
   opus \
-  python3 \
   libsodium-dev \
   bash \
   git \
@@ -15,6 +14,8 @@ RUN apk update \
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
   gcc \
+  g++ \
+  libc-dev \
   libffi-dev \
   make \
   musl-dev \
