@@ -431,7 +431,7 @@ def main():
             time.sleep(sleeptime)
 
     print()
-    log.info("All Done. 🎉")
+    log.info("All Done. ðŸŽ‰")
 
 
 if __name__ == '__main__':
