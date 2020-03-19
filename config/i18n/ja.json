@@ -101,6 +101,8 @@
     "cmd-queue-playing-noauthor": "再生中: `{0}` {1}\n",
     "cmd-queue-entry-author": "{0} -- `{1}` - `{2}` が追加",
     "cmd-queue-entry-noauthor": "{0} -- `{1}`",
+    "cmd-queue-timedelta": "TimeDeltaError: 曲時間取得エラー、曲が正しく再生されるまでお待ち下さい。 \nしばらく経ってからVCへ再接続させるか再起動が必要な場合があります。",
+    "cmd-queue-totaltime": "キュー合計再生時間： ",
     "cmd-clean-invalid": "無効なパラメータです。削除する件数を入力してください。",
     "cmd-clean-reply": "{0} 件のメッセージを削除しました{1}",
     "playlists-noperms": "プレイリストを追加する権限がありません",

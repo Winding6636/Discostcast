@@ -1629,12 +1629,23 @@ class MusicBot(discord.Client):
                 reply_text %= (btext, position)
 
             else:
-                try:
-                    time_until = await player.playlist.estimate_time_until(position, player)
-                    reply_text += self.str.get('cmd-play-eta', ' - estimated time until playing: %s')
-                except:
-                    traceback.print_exc()
-                    time_until = ''
+                if self.config.bgmmode:
+                    try:
+                        if self.config.bgmlength < player.current_entry.duration:
+                            time_until = timedelta(seconds=self.config.bgmlength * position)
+                        else:
+                            time_until = await player.playlist.estimate_time_until(position, player)
+                        reply_text += self.str.get('cmd-play-eta', ' - estimated time until playing: %s')
+                    except:
+                        traceback.print_exc()
+                        time_until = ''
+                else:
+                    try:
+                        time_until = await player.playlist.estimate_time_until(position, player)
+                        reply_text += self.str.get('cmd-play-eta', ' - estimated time until playing: %s')
+                    except:
+                        traceback.print_exc()
+                        time_until = ''
 
                 reply_text %= (btext, position, ftimedelta(time_until))
 
@@ -2376,11 +2387,17 @@ class MusicBot(discord.Client):
             # TODO: Fix timedelta garbage with util function
             try:
                 song_progress = ftimedelta(timedelta(seconds=player.progress))
-                song_total = ftimedelta(timedelta(seconds=player.current_entry.duration))
+                if self.config.bgmmode:
+                    if self.config.bgmlength < player.current_entry.duration:
+                        song_total = ftimedelta(timedelta(seconds=self.config.bgmlength))
+                    else:
+                        song_total = ftimedelta(timedelta(seconds=player.current_entry.duration))
+                else:
+                    song_total = ftimedelta(timedelta(seconds=player.current_entry.duration))
                 prog_str = '`[%s/%s]`' % (song_progress, song_total)
             except:
                 log.error("TimeDeltaError... ")
-                return Response('TimedeltaError : しばらくお待ち下さい。ダメなら管理者に連絡してください。', delete_after=60)
+                return Response(self.str.get('cmd-queue-timedelta', "Song time acquisition error, please wait until the song is played correctly."), delete_after=60)
 
             if player.current_entry.meta.get('channel', False) and player.current_entry.meta.get('author', False):
                 lines.append(self.str.get('cmd-queue-playing-author', "Currently playing: `{0}` added by `{1}` {2}\n").format(
@@ -2388,12 +2405,22 @@ class MusicBot(discord.Client):
             else:
                 lines.append(self.str.get('cmd-queue-playing-noauthor', "Currently playing: `{0}` {1}\n").format(player.current_entry.title, prog_str))
 
+        #キュー用
+        if self.config.bgmmode:
+            if self.config.bgmlength < player.current_entry.duration:
+                song_total = self.config.bgmlength
+            else:
+                song_total = player.current_entry.duration
+        else:
+            song_total = player.current_entry.duration
 
         for i, item in enumerate(player.playlist, 1):
             if item.meta.get('channel', False) and item.meta.get('author', False):
                 nextline = self.str.get('cmd-queue-entry-author', '{0} -- `{1}` by `{2}`').format(i, item.title, item.meta['author'].name).strip()
+                song_total += item.duration
             else:
                 nextline = self.str.get('cmd-queue-entry-noauthor', '{0} -- `{1}`').format(i, item.title).strip()
+                song_total += item.duration
 
             currentlinesum = sum(len(x) + 1 for x in lines)  # +1 is for newline char
 
@@ -2421,6 +2448,9 @@ class MusicBot(discord.Client):
             message = '\n:⋅:⋅:⋅:⋅:⋅:⋅:\n'+ '\n'.join(lines) + '\n:⋅:⋅:⋅:⋅:⋅:⋅:\n'
             await self.safe_send_message(author, message)
         else:
+            song_total = timedelta(seconds=song_total)
+            song_total = "\n" + self.str.get('cmd-queue-totaltime', "Queue TotalTime: ") + str(song_total)
+            lines.append(song_total)
             message = '\n'.join(lines)
             return Response(message, delete_after=30)
 

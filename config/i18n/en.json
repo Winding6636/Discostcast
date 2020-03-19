@@ -97,6 +97,7 @@
     "cmd-queue-playing-noauthor": "Currently playing: `{0}` {1}\n",
     "cmd-queue-entry-author": "{0} -- `{1}` by `{2}`",
     "cmd-queue-entry-noauthor": "{0} -- `{1}`",
+    "cmd-queue-timedelta": "TimeDeltaError: Song time acquisition error, please wait until the song is played correctly.",
     "cmd-clean-invalid": "Invalid parameter. Please provide a number of messages to search.",
     "cmd-clean-reply": "Cleaned up {0} message{1}.",
     "playlists-noperms": "You are not allowed to request playlists",
