@@ -221,7 +221,11 @@ class URLPlaylistEntry(BasePlaylistEntry):
             if self.playlist.bot.config.use_experimental_equalization:
                 try:
                     mean, maximum = await self.get_mean_volume(self.filename)
-                    aoptions = '-af "volume={}dB"'.format((maximum * -1))
+                    #試験的
+                    #print("mean: " + str(mean))
+                    maximum = -10 #平均値等ではなく指定した音量に統一させる
+                    #print(maximum)
+                    aoptions = '-af "volume={}dB"'.format((maximum * +1))
                 except Exception as e:
                     log.error('There as a problem with working out EQ, likely caused by a strange installation of FFmpeg. '
                               'This has not impacted the ability for the bot to work, but will mean your tracks will not be equalised.')
