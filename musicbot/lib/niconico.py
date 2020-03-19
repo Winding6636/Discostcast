@@ -35,7 +35,8 @@ def safe_downloader(song_url, output_path, quality):
 
 async def select(loop, song_url, output_path):
     #for quality in [ "archive_h264_200kbps_360p", "archive_h264_360p", "archive_h264_360p_low", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
-    for quality in [ "archive_h264_360p_low", "archive_h264_360p", "archive_h264_200kbps_360p", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
+    #for quality in [ "archive_h264_360p_low", "archive_h264_360p", "archive_h264_200kbps_360p", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
+    for quality in [ "archive_h264_360p", "archive_h264_200kbps_360p", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
         try:
             downloader(song_url, output_path, quality)
             result = True
