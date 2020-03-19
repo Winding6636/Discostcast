@@ -8,11 +8,12 @@ import time
 def downloader(song_url, output_path, quality):
     try:
         #nndownload.execute("-g", "-n", "-m", "-vq", "low", "-aq", "archive_aac_192kbps", "-l", "--thread", "8", "-o", output_path, song_url)
-        nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
-    except (nndownload.nndownload.FormatNotAvailableException,nndownload.nndownload.ParameterExtractionException) as e:
+        #nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
+        nndownload.execute("-q", "-g", "-n", "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
+    except (nndownload.nndownload.FormatNotAvailableException, nndownload.nndownload.ParameterExtractionException) as e:
         try:
             time.sleep(1)
-            nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_64kbps", "--thread", "8", "-o", output_path, song_url)
+            nndownload.execute("-q", "-g", "-n", "-aq", "archive_aac_64kbps", "--thread", "8", "-o", output_path, song_url)
         except:
             print("[downloader] : safe")
             nndownload.execute("-q", "-g", "-n", "--thread", "10", "-o", output_path, song_url)
@@ -22,8 +23,8 @@ def downloader(song_url, output_path, quality):
 def safe_downloader(song_url, output_path, quality):
     try:
         #nndownload.execute("-g", "-n", "-m", "-vq", "low", "-aq", "archive_aac_192kbps", "-l", "--thread", "8", "-o", output_path, song_url)
-        nndownload.execute("-q", "-g", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
-    except (nndownload.nndownload.FormatNotAvailableException,nndownload.nndownload.ParameterExtractionException) as e:
+        nndownload.execute("-q", "-g", "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
+    except (nndownload.nndownload.FormatNotAvailableException, nndownload.nndownload.ParameterExtractionException) as e:
         try:
             time.sleep(1)
             nndownload.execute("-q", "-g", "-vq", quality, "-aq", "archive_aac_64kbps", "--thread", "8", "-o", output_path, song_url)
