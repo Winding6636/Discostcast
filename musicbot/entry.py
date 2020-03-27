@@ -220,21 +220,45 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
             if self.playlist.bot.config.use_experimental_equalization:
                 try:
-                    mean, maximum = await self.get_mean_volume(self.filename)
                     #試験的
-                    #print("mean: " + str(mean))
-                    maximum = -10 #平均値等ではなく指定した音量に統一させる
+                    mean, maximum = await self.get_mean_volume(self.filename)
+                    #if mean > -20:
+                        #peak = -20
+                    #else:
+                        #peak = -15
+
+                    #cmd = self.get('ffmpeg-normalize') + ' ' + self.filename + ' -c:a aac -nt peak -t ' + peak+ ' -f -o ' + self.filename
+                    #output = await self.run_command(cmd)
+                    #output = output.decode("utf-8")
+                    #print(str(output))
+
+                    print("mean: " + str(mean) + "\nmax: " + str(maximum))
+                    #aoptions = '-filter:a loudnorm -af "volume={}dB"'.format((maximum * -1))
+                    aoptions= ' -filter:a loudnorm '
+                    #if mean < -20:
+                        #maximum = 20 #平均値等ではなく指定した音量に統一させる
+                        #maximum = -maximum
+                        #aoptions = '-af "volume={}dB"'.format((maximum * +1))
+                        #print(aoptions)
                     #print(maximum)
-                    aoptions = '-af "volume={}dB"'.format((maximum * +1))
+                    #else:
+                        #aoptions = '-af "volume={}dB"'.format((mean * +1))
+                        #print(aoptions)
+                    #aoptions = "-vn"
+                    #cmd = '"' + self.get('ffmpeg-normalize') + ' ' + self.filename + ' -c:a aac -nt peak -t -15 -o ' + self.filename + '_test.mp4'
+                    #output = await self.run_command(cmd)
+                    #output = output.decode("utf-8")
+
                 except Exception as e:
                     log.error('There as a problem with working out EQ, likely caused by a strange installation of FFmpeg. '
                               'This has not impacted the ability for the bot to work, but will mean your tracks will not be equalised.')
                     aoptions = "-vn"
+                    aoptions+= ' -filter:a loudnorm '
             else:
                 aoptions = "-vn"
 
             if self.playlist.bot.config.bgmmode:
-                log.info('BGMmode が有効です。')
+                log.debug('BGMmode が有効です。')
                 try:
                     await self.bgmmode(self.filename)
                 except Exception as e:
@@ -338,6 +362,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
+                        sleep(5)
                         result = await self.playlist.downloader.niconicodl(self.playlist.loop, song_url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
@@ -348,6 +373,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
+                        sleep(5)
                         result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
