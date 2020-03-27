@@ -2411,14 +2411,15 @@ class MusicBot(discord.Client):
             else:
                 lines.append(self.str.get('cmd-queue-playing-noauthor', "Currently playing: `{0}` {1}\n").format(player.current_entry.title, prog_str))
 
-        #キュー用
-        if self.config.bgmmode:
-            if self.config.bgmlength < player.current_entry.duration:
-                song_total = self.config.bgmlength
-            else:
-                song_total = player.current_entry.duration
-        else:
-            song_total = player.current_entry.duration
+            #キュー用
+            if player.current_entry.duration is not None:
+                if self.config.bgmmode:
+                    if self.config.bgmlength < player.current_entry.duration:
+                        song_total = self.config.bgmlength
+                    else:
+                        song_total = player.current_entry.duration
+                else:
+                    song_total = player.current_entry.duration
 
         for i, item in enumerate(player.playlist, 1):
             if item.meta.get('channel', False) and item.meta.get('author', False):
@@ -2454,9 +2455,10 @@ class MusicBot(discord.Client):
             message = '\n:⋅:⋅:⋅:⋅:⋅:⋅:\n'+ '\n'.join(lines) + '\n:⋅:⋅:⋅:⋅:⋅:⋅:\n'
             await self.safe_send_message(author, message)
         else:
-            song_total = timedelta(seconds=song_total)
-            song_total = "\n" + self.str.get('cmd-queue-totaltime', "Queue TotalTime: ") + str(song_total)
-            lines.append(song_total)
+            if player.is_playing:
+                song_total = timedelta(seconds=song_total)
+                song_total = "\n" + self.str.get('cmd-queue-totaltime', "Queue TotalTime: ") + str(song_total)
+                lines.append(song_total)
             message = '\n'.join(lines)
             return Response(message, delete_after=30)
 
