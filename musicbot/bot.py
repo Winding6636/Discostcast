@@ -2457,7 +2457,7 @@ class MusicBot(discord.Client):
         else:
             if player.is_playing:
                 song_total = timedelta(seconds=song_total)
-                song_total = "\n" + self.str.get('cmd-queue-totaltime', "Queue TotalTime: ") + str(song_total)
+                song_total = "\n" + self.str.get('cmd-queue-totaltime', 'Queue TotalTime: ') + str(song_total)
                 lines.append(song_total)
             message = '\n'.join(lines)
             return Response(message, delete_after=30)
