@@ -222,32 +222,9 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 try:
                     #試験的
                     mean, maximum = await self.get_mean_volume(self.filename)
-                    #if mean > -20:
-                        #peak = -20
-                    #else:
-                        #peak = -15
-
-                    #cmd = self.get('ffmpeg-normalize') + ' ' + self.filename + ' -c:a aac -nt peak -t ' + peak+ ' -f -o ' + self.filename
-                    #output = await self.run_command(cmd)
-                    #output = output.decode("utf-8")
-                    #print(str(output))
-
                     print("mean: " + str(mean) + "\nmax: " + str(maximum))
                     #aoptions = '-filter:a loudnorm -af "volume={}dB"'.format((maximum * -1))
                     aoptions= ' -filter:a loudnorm '
-                    #if mean < -20:
-                        #maximum = 20 #平均値等ではなく指定した音量に統一させる
-                        #maximum = -maximum
-                        #aoptions = '-af "volume={}dB"'.format((maximum * +1))
-                        #print(aoptions)
-                    #print(maximum)
-                    #else:
-                        #aoptions = '-af "volume={}dB"'.format((mean * +1))
-                        #print(aoptions)
-                    #aoptions = "-vn"
-                    #cmd = '"' + self.get('ffmpeg-normalize') + ' ' + self.filename + ' -c:a aac -nt peak -t -15 -o ' + self.filename + '_test.mp4'
-                    #output = await self.run_command(cmd)
-                    #output = output.decode("utf-8")
 
                 except Exception as e:
                     log.error('There as a problem with working out EQ, likely caused by a strange installation of FFmpeg. '
