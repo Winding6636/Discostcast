@@ -1379,6 +1379,9 @@ class MusicBot(discord.Client):
         song_url = song_url.strip('<>')
 
         await self.send_typing(channel)
+        #URL追加時のエラー回避のための待機
+        #time.sleep(random.randint(1, 10))
+        await asyncio.sleep(random.randint(1, 5))
 
         if leftover_args:
             song_url = ' '.join([song_url, *leftover_args])

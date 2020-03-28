@@ -222,7 +222,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 try:
                     #試験的
                     mean, maximum = await self.get_mean_volume(self.filename)
-                    print("mean: " + str(mean) + "\nmax: " + str(maximum))
+                    log.debug("Volume, mean: " + str(mean) + " max: " + str(maximum))
                     #aoptions = '-filter:a loudnorm -af "volume={}dB"'.format((maximum * -1))
                     aoptions= ' -filter:a loudnorm '
 
@@ -320,6 +320,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                     log.debug('後処理')
         except Exception as e:
             log.error('ファイルが存在しません。前処理でエラーが発生しているかスルーされています。')
+            errmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-error","DL等エラーが発生しました、スキップします。")))
 
         log.info('{0}秒カット処理しました。'.format(self.playlist.bot.config.bgmlength))
 
@@ -339,7 +340,6 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
-                        sleep(5)
                         result = await self.playlist.downloader.niconicodl(self.playlist.loop, song_url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
@@ -350,7 +350,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
-                        sleep(5)
+                        await self.playlist.bot.send_typing(channel)
                         result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
@@ -361,6 +361,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
+                        await self.playlist.bot.send_typing(channel)
                         result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
