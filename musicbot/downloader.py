@@ -8,6 +8,7 @@ import subprocess, re, time
 
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
+from .config import Config, ConfigDefaults
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +23,9 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
-    'source_address': '0.0.0.0',
+    'youtube-bypass-429': True,
+    '--youtube-bypass-429': True,
+    'wget-limit-rate': '8191',
     'usenetrc': True
 }
 

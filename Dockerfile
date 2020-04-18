@@ -11,7 +11,8 @@ RUN apk update \
   libsodium-dev \
   bash \
   git \
-\
+  wget \
+
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
   gcc \

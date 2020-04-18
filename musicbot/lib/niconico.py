@@ -10,7 +10,8 @@ def downloader(song_url, output_path, quality):
         #nndownload.execute("-g", "-n", "-m", "-vq", "low", "-aq", "archive_aac_192kbps", "-l", "--thread", "8", "-o", output_path, song_url)
         result=nndownload.execute("-q", "-g", "-n", "-vq", quality, "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
         #result=nndownload.execute("-q", "-g", "-n", "-aq", "archive_aac_192kbps",  "--thread", "8", "-o", output_path, song_url)
-    except (nndownload.nndownload.FormatNotAvailableException, nndownload.nndownload.ParameterExtractionException) as e:
+    #except (FormatNotAvailableException, nndownload.nndownload.FormatNotAvailableException, nndownload.nndownload.ParameterExtractionException) as e:
+    except (nndownload.nndownload.FormatNotAvailableException) as e:
         try:
             time.sleep(1)
             #result=nndownload.execute("-q", "-g", "-n", "-aq", "archive_aac_64kbps", "--thread", "8", "-o", output_path, song_url)
@@ -40,7 +41,7 @@ def safe_downloader(song_url, output_path, quality):
 async def select(loop, song_url, output_path):
     #for quality in [ "archive_h264_200kbps_360p", "archive_h264_360p", "archive_h264_360p_low", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
     #for quality in [ "archive_h264_360p_low", "archive_h264_360p", "archive_h264_200kbps_360p", "archive_h264_300kbps_360p", "archive_h264_600kbps_360p" ]:
-    for quality in [ "archive_h264_300kbps_360p", "archive_h264_600kbps_360p", "archive_h264_1600kbps_540p", ]:
+    for quality in [ "archive_h264_300kbps_360p", "archive_h264_600kbps_360p", "archive_h264_1600kbps_540p", "archive_h264_360p" ]:
         try:
             result = downloader(song_url, output_path, quality)
             if result:
