@@ -26,7 +26,9 @@ ytdl_format_options = {
     'youtube-bypass-429': True,
     '--youtube-bypass-429': True,
     'wget-limit-rate': '8191',
-    'usenetrc': True
+    'usenetrc': True,
+    '--rm-cache-dir': True,
+    'rm-cache-dir': True
 }
 
 niconico_options = {

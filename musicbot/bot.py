@@ -336,7 +336,8 @@ class MusicBot(discord.Client):
             return True
         else:
             raise exceptions.PermissionsError(
-                "you cannot use this command when not in the voice channel (%s)" % vc.name, expire_in=30)
+                self.str.get('cmd-play-vcjoin', 'you cannot use this command when not in the voice channel {0}').format(vc.name), expire_in=15)
+                #"you cannot use this command when not in the voice channel (%s)" % vc.name, expire_in=30)
 
     async def _cache_app_info(self, *, update=False):
         if not self.cached_app_info and not update and self.user.bot:
@@ -1376,12 +1377,12 @@ class MusicBot(discord.Client):
         equivalent of the song. Streaming from Spotify is not possible.
         """
 
-        song_url = song_url.strip('<>')
+        #check queue all
+        if song_url == 'a':
+            raise exceptions.CommandError(self.str.get('cmd-notqueue', '{0} Invalid URL. This is to prevent typos in "queue all".').format(author), expire_in=15)
 
+        song_url = song_url.strip('<>')
         await self.send_typing(channel)
-        #URL追加時のエラー回避のための待機
-        #time.sleep(random.randint(1, 10))
-        await asyncio.sleep(random.randint(1, 5))
 
         if leftover_args:
             song_url = ' '.join([song_url, *leftover_args])
@@ -1461,6 +1462,17 @@ class MusicBot(discord.Client):
             # Try to determine entry type, if _type is playlist then there should be entries
             while True:
                 try:
+
+                    #URL追加時のエラー回避のための待機
+                    if self.config.bgmmode:
+                        urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
+                        if (re.search('^(sm|nm|so)', song_url)):
+                            await asyncio.sleep(random.randint(6, 10))
+                        elif ( (str(urlpattern.search(str(song_url)).group(1))) == 'nicovideo.jp'):
+                            await asyncio.sleep(random.randint(6, 10))
+                        elif (re.search('nico.ms', song_url)):
+                            await asyncio.sleep(random.randint(6, 10))
+
                     info = await self.downloader.extract_info(player.playlist.loop, song_url, download=False, process=False)
                     # If there is an exception arise when processing we go on and let extract_info down the line report it
                     # because info might be a playlist and thing that's broke it might be individual entry

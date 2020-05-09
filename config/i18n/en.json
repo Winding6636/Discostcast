@@ -105,5 +105,7 @@
     "playlists-big": "Playlist has too many entries ({0} > {1})",
     "playlists-limit": "Playlist entries + your already queued songs reached limit ({0} + {1} > {2})",
     "karaoke-enabled": "Karaoke mode is enabled, please try again when its disabled!",
-    "left-no-owner-guilds": "Left `{}` due to bot owner not being found in it."
+    "left-no-owner-guilds": "Left `{}` due to bot owner not being found in it.",
+    "cmd-notqueue": "@{0} Invalid URI. This is to prevent typos in 'queue all'.",
+    "cmd-play-vcjoin": " you cannot use this command when not in the voice channel {0}"
 }
