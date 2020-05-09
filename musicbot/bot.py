@@ -1462,21 +1462,22 @@ class MusicBot(discord.Client):
             # Try to determine entry type, if _type is playlist then there should be entries
             while True:
                 try:
-
-                    #URL追加時のエラー回避のための待機
-                    if self.config.bgmmode:
-                        urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
-                        if (re.search('^(sm|nm|so)', song_url)):
-                            await asyncio.sleep(random.randint(10, 15))
-                        elif ( (str(urlpattern.search(str(song_url)).group(1))) == 'nicovideo.jp'):
-                            await asyncio.sleep(random.randint(10, 15))
-                        elif (re.search('nico.ms', song_url)):
-                            await asyncio.sleep(random.randint(10, 15))
-
+                    
                     info = await self.downloader.extract_info(player.playlist.loop, song_url, download=False, process=False)
                     # If there is an exception arise when processing we go on and let extract_info down the line report it
                     # because info might be a playlist and thing that's broke it might be individual entry
                     try:
+                        #URL追加時のエラー回避のための待機
+                        if self.config.bgmmode:
+                            urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
+                            randtime = random.randint(6,10)
+                            if (re.search('^(sm|nm|so)', song_url)):
+                                await asyncio.sleep(randtime)
+                            elif ( (str(urlpattern.search(str(song_url)).group(1))) == 'nicovideo.jp'):
+                                await asyncio.sleep(randtime)
+                            elif (re.search('nico.ms', song_url)):
+                                await asyncio.sleep(randtime)
+                        
                         info_process = await self.downloader.extract_info(player.playlist.loop, song_url, download=False)
                     except:
                         info_process = None
@@ -1662,7 +1663,11 @@ class MusicBot(discord.Client):
                         traceback.print_exc()
                         time_until = ''
 
-                reply_text %= (btext, position, ftimedelta(time_until))
+                #timedelta取得エラーのテスト
+                try:
+                    reply_text %= (btext, position, ftimedelta(time_until))
+                except:
+                    reply_text %= (btext, position)
 
         return Response(reply_text, delete_after=30)
 
