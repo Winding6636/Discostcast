@@ -12,7 +12,7 @@ RUN apk update \
   bash \
   git \
   wget \
-
+\
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
   gcc \
