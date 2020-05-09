@@ -1467,11 +1467,11 @@ class MusicBot(discord.Client):
                     if self.config.bgmmode:
                         urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
                         if (re.search('^(sm|nm|so)', song_url)):
-                            await asyncio.sleep(random.randint(6, 10))
+                            await asyncio.sleep(random.randint(10, 15))
                         elif ( (str(urlpattern.search(str(song_url)).group(1))) == 'nicovideo.jp'):
-                            await asyncio.sleep(random.randint(6, 10))
+                            await asyncio.sleep(random.randint(10, 15))
                         elif (re.search('nico.ms', song_url)):
-                            await asyncio.sleep(random.randint(6, 10))
+                            await asyncio.sleep(random.randint(10, 15))
 
                     info = await self.downloader.extract_info(player.playlist.loop, song_url, download=False, process=False)
                     # If there is an exception arise when processing we go on and let extract_info down the line report it
