@@ -127,6 +127,7 @@ class MusicPlayer(EventEmitter, Serializable):
         self.karaoke_mode = False
 
         self._volume = bot.config.default_volume
+        self._equalization = bot.config.use_experimental_equalization
         self._play_lock = asyncio.Lock()
         self._current_player = None
         self._current_entry = None
@@ -286,9 +287,15 @@ class MusicPlayer(EventEmitter, Serializable):
                 boptions = "-nostdin"
                 # aoptions = "-vn -b:a 192k"
                 if isinstance(entry, URLPlaylistEntry):
-                    aoptions = entry.aoptions
+                    if (self._equalization):
+                        aoptions = '-vn -filter:a loudnorm'
+                    else:
+                        aoptions = entry.aoptions
                 else:
-                    aoptions = "-vn"
+                    if (self._equalization):
+                        aoptions = '-vn -filter:a loudnorm'
+                    else:
+                        aoptions = "-vn"
 
                 log.ffmpeg("Creating player with options: {} {} {}".format(boptions, aoptions, entry.filename))
 

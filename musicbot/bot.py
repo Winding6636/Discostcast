@@ -1187,7 +1187,7 @@ class MusicBot(discord.Client):
 
 
     async def cmd_about(self):
-        return Response("###### MusicBot_py About ######\n\nMusicBot Version: {0}\n\nModuleVersions\nDiscord.py Version: {1}\nYoutube-dl Version: {2}".format(BOTVERSION, discord.__version__, ytdl_ver))
+        return Response("**:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:**\nBot Version: **{0}**\n\n**ModuleVersions:**\nDiscord.py : **{1}**\nYoutube-DL : **{2}**\n\n**:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:**".format(BOTVERSION, discord.__version__, ytdl_ver))
 
     async def cmd_help(self, message, channel, command=None):
         """

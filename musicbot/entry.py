@@ -237,7 +237,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
             if self.playlist.bot.config.bgmmode:
                 log.debug('BGMmode が有効です。')
                 try:
-                    await self.bgmmode(self.filename)
+                    await self.bgmmode(entry, self.filename)
                 except Exception as e:
                     log.error('動画のカットに失敗しました。')
             else:
@@ -303,7 +303,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
         log.debug('Calculated mean volume as {0}'.format(mean_volume))
         return mean_volume, max_volume
 
-    async def bgmmode(self, input_file):
+    async def bgmmode(self, entry, input_file):
         cutime = '' + str(self.playlist.bot.config.bgmlength) + ' -af "afade=t=out:st=' + str(self.playlist.bot.config.bgmlength - 10) + ':d=5"'
         output_file = 'audio_cache/cuting_' + input_file[12:] + ''
         log.debug('先頭から{0}秒で動画をカットします。 {1}'.format(self.playlist.bot.config.bgmlength, input_file))
@@ -332,8 +332,9 @@ class URLPlaylistEntry(BasePlaylistEntry):
             channel = entry.meta.get('channel', None)
             dlmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-dl-start","Download Started: `{}`").format(self.url)))
             await self.playlist.bot.send_typing(channel)
-        urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
+
         try:
+            urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
             if (re.search('^(sm|nm|so)', self.url)):
                 log.debug ("sm_nm")
                 song_url = 'https://nico.ms/' + self.url
