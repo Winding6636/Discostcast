@@ -351,7 +351,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
-                        await self.playlist.bot.send_typing(channel)
+                        if entry.meta.get('channel') != None:
+                            await self.playlist.bot.send_typing(channel)
                         result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
@@ -362,7 +363,8 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 retry = True
                 while retry:
                     try:
-                        await self.playlist.bot.send_typing(channel)
+                        if entry.meta.get('channel') != None:
+                            await self.playlist.bot.send_typing(channel)
                         result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
                         break
