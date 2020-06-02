@@ -2,6 +2,10 @@ pynacl==1.2.1
 discord.py[voice]
 colorlog
 cffi --only-binary all; sys_platform == 'win32'
+# niconicoのsm判定用の追加をしているので別 ぶっちゃけbot側で処理しろしな感じなのでいつか
+#youtube-dl
 -e git+https://github.com/Winding6636/youtube-dl@modified_latest#egg=youtube-dl
 beautifulsoup4
 requests
+# Dockerもといsetup.pyでエラーを吐くためコメントアウト // Dockerfileで個別に入れている
+#nndownload
