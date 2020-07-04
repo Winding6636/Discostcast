@@ -6,7 +6,7 @@ from textwrap import dedent
 from .utils import _get_variable
 from .exceptions import HelpfulError
 
-import nndownload
+from .lib import niconico
 
 class Yikes:
     def find_module(self, fullname, path=None):

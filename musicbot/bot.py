@@ -1482,7 +1482,7 @@ class MusicBot(discord.Client):
                     except:
                         info_process = None
 
-                    #log.debug(info) #ytdl_webpage
+                    log.everything(info) #ytdl_webpage
 
                     if info_process and info and info_process.get('_type', None) == 'playlist' and 'entries' not in info and not info.get('url', '').startswith('ytsearch'):
                         use_url = info_process.get('webpage_url', None) or info_process.get('url', None)

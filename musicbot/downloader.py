@@ -3,12 +3,12 @@ import asyncio
 import logging
 import functools
 import youtube_dl
-import nndownload
 import subprocess, re, time
 
 import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor
 from .config import Config, ConfigDefaults
+from .lib import niconico
 
 log = logging.getLogger(__name__)
 
@@ -23,15 +23,14 @@ ytdl_format_options = {
     'quiet': True,
     'no_warnings': True,
     'default_search': 'auto',
+    'usenetrc': True,
+    'extract-audio': True,
+    'audio-quality': 0,
     'youtube-bypass-429': True,
     '--youtube-bypass-429': True,
     'wget-limit-rate': '8191',
-    'usenetrc': True,
     '--rm-cache-dir': True,
     'rm-cache-dir': True
-}
-
-niconico_options = {
 }
 
 # Fuck your useless bugreports message that gets two link embeds and confuses users
@@ -97,7 +96,7 @@ class Downloader:
     async def safe_extract_info(self, loop, *args, **kwargs):
         return await loop.run_in_executor(self.thread_pool, functools.partial(self.safe_ytdl.extract_info, *args, **kwargs))
 
-    async def niconicodl(self, loop, song_url, output_path):
+    async def nico_extract(self, loop, song_url, output_path):
         #save_path = '' + self.download_folder + '/{id}.mp4'
         id = re.search(r'(sm|nm|so)[0-9]+',output_path)
         if id != None:
@@ -106,9 +105,9 @@ class Downloader:
             id = re.search(r'[0-9]+',output_path)
             save_path = 'audio_cache/' + id.group() + '.mp4'
         
-        log.debug("#[PATH]# : %s",song_url)
-        log.debug("#[PATH]# : %s",save_path)
-        log.debug("#[PATH]# : %s",output_path)
+        log.everything("#[PATH]# : %s",song_url)
+        log.everything("#[PATH]# : %s",save_path)
+        log.everything("#[PATH]# : %s",output_path)
         #log.debug("#[PATH]# : %s",rename_path)
 
         def filechkpass():
@@ -118,11 +117,11 @@ class Downloader:
             except ZeroDivisionError:
                 os.remove(save_path)
 
-        def downloader():
+        def get_run():
             retime = [ 20, 30, 120, 240, 320 ]
             for _ in retime:
                 try:
-                    subprocess.call(["python3", "./musicbot/lib/niconico.py", song_url, save_path],timeout=_)
+                    subprocess.call(["python", "./musicbot/lib/niconico.py", song_url, save_path],timeout=_)
                     break
                 except subprocess.TimeoutExpired as e:
                     filechkpass()
@@ -133,9 +132,8 @@ class Downloader:
                     log.debug('[DownloadProcess] :  Download Error...')
                     time.sleep(3)
 
-
         with concurrent.futures.ThreadPoolExecutor() as pool:
-            await loop.run_in_executor(pool, functools.partial(downloader))
+            await loop.run_in_executor(pool, functools.partial(get_run))
         
         try:
             os.path.isfile(save_path)

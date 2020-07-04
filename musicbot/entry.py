@@ -322,7 +322,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
             log.error('ファイルが存在しません。前処理でエラーが発生しているかスルーされています。')
             errmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-error","DL等エラーが発生しました、スキップします。")))
 
-        log.info('{0}秒カット処理しました。'.format(self.playlist.bot.config.bgmlength))
+        log.debug('{0}秒カット処理しました。'.format(self.playlist.bot.config.bgmlength))
 
     # noinspection PyShadowingBuiltins
     async def _really_download(self, entry, *, hash=False):
@@ -336,13 +336,13 @@ class URLPlaylistEntry(BasePlaylistEntry):
         try:
             urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
             if (re.search('^(sm|nm|so)', self.url)):
-                log.debug ("sm_nm")
                 song_url = 'https://nico.ms/' + self.url
                 retry = True
                 while retry:
                     try:
-                        result = await self.playlist.downloader.niconicodl(self.playlist.loop, song_url, self.expected_filename)
+                        result = await self.playlist.downloader.nico_extract(self.playlist.loop, song_url, self.expected_filename)
                         self.filename = unhashed_fname =  result
+                        #result = await self.playlist.downloader.extract_info(self.playlist.loop, self.url, download=True)
                         break
                     except Exception as e:
                         raise ExtractionError(e)
@@ -353,8 +353,9 @@ class URLPlaylistEntry(BasePlaylistEntry):
                     try:
                         if entry.meta.get('channel') != None:
                             await self.playlist.bot.send_typing(channel)
-                        result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
+                        result = await self.playlist.downloader.nico_extract(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
+                        #result = await self.playlist.downloader.extract_info(self.playlist.loop, self.url, download=True)
                         break
                     except Exception as e:
                         raise ExtractionError(e)
@@ -365,8 +366,9 @@ class URLPlaylistEntry(BasePlaylistEntry):
                     try:
                         if entry.meta.get('channel') != None:
                             await self.playlist.bot.send_typing(channel)
-                        result = await self.playlist.downloader.niconicodl(self.playlist.loop, self.url, self.expected_filename)
+                        result = await self.playlist.downloader.nico_extract(self.playlist.loop, self.url, self.expected_filename)
                         self.filename = unhashed_fname =  result
+                        #result = await self.playlist.downloader.extract_info(self.playlist.loop, self.url, download=True)
                         break
                     except Exception as e:
                         raise ExtractionError(e)
