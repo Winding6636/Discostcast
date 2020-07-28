@@ -34,8 +34,11 @@ RUN pip3 install --upgrade pip \
 && pip3 install --no-cache-dir -r requirements.txt
 # nndownloadのsetup.pyの都合上requireとは別でインストール実行
 RUN pip3 install nndownload
-#youtube-dl niconico patch
-RUN curl -s https://raw.githubusercontent.com/Winding6636/youtube-dl/nico_short/devscripts/ytdl_pip-patch.sh | bash
+#youtube-dl 429-patch
+RUN git clone https://gitlab.com/colethedj/youtube-dl-429-patch.git \
+&& _ytdlpath_=`pip show youtube-dl | grep Location | awk '{print $2}'` \
+&& patch -p1 -d $_ytdlpath_ < ./youtube-dl-429-patch/youtube_dl_429.patch \
+&& sed -i -e '$a __version__ = __version__ + " _429-patched"\n' $_ytdlpath_/youtube_dl/version.py
 ADD config /usr/src/musicbot/config
 ADD .netrc /root/.netrc
 RUN chmod og-rw /root/.netrc
