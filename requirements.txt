@@ -7,5 +7,6 @@ youtube-dl
 beautifulsoup4
 requests
 # Dockerもといsetup.pyでエラーを吐くためコメントアウト // Dockerfileで個別に入れている
-aiohttp_socks #nndownload_req
 #nndownload
+aiohttp_socks #nndownload_req
+websockets
