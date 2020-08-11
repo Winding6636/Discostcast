@@ -36,6 +36,10 @@ ADD config /usr/src/musicbot/config
 ADD .netrc /root/.netrc
 RUN chmod og-rw /root/.netrc
 
+# Patchs
+ADD ./env/ytdl_patch.sh /usr/src/musicbot
+RUN ./patch.sh
+
 #Cleanup
 RUN apk del .build-deps
 
