@@ -12,6 +12,8 @@ RUN apk update \
   bash \
   git \
   wget \
+  curl \
+  patch \
 \
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
@@ -37,8 +39,8 @@ ADD .netrc /root/.netrc
 RUN chmod og-rw /root/.netrc
 
 # Patchs
-ADD ./env/ytdl_patch.sh /usr/src/musicbot
-RUN sh ./ytdl_patch.sh
+#ADD ./env/ytdl_patch.sh /usr/src/musicbot
+RUN sh ./env/ytdl_patch.sh
 
 #Cleanup
 RUN apk del .build-deps
