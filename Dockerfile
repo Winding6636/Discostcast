@@ -38,7 +38,7 @@ RUN chmod og-rw /root/.netrc
 
 # Patchs
 ADD ./env/ytdl_patch.sh /usr/src/musicbot
-RUN ./ytdl_patch.sh
+RUN sh ./ytdl_patch.sh
 
 #Cleanup
 RUN apk del .build-deps
