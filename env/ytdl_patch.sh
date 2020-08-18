@@ -4,16 +4,31 @@
 ##
 ##  youtube fuck 429 patch , niconico sm video_id patch
 
-mkdir patch && cd patch
+mkdir -p patch && cd patch
 pip download --no-binary :all: youtube-dl
 mkdir youtube-dl && tar --strip-components 1 -xf youtube_dl-*.tar.gz  -C youtube-dl
 git clone https://gitlab.com/colethedj/youtube-dl-429-patch.git
 wget -q https://raw.githubusercontent.com/Winding6636/youtube-dl/nico_short/niconico_sm.patch
 cd youtube-dl
-git apply ../youtube-dl-429-patch/youtube_dl_429.patch
-patch -p1 < ../niconico_sm.patch
-sed -i -e '$a __version__ = __version__ + " modified: _429-patch"' ./youtube_dl/version.py
-sed -i -e '$a __version__ = __version__ + ", _nicosm-patch"\n' ./youtube_dl/version.py
+sed -i -e '$a __version__ = __version__ + " modified:"' ./youtube_dl/version.py
+#git apply ../youtube-dl-429-patch/youtube_dl_429.patch
+patch -t -p1 < ../youtube-dl-429-patch/youtube_dl_429.patch
+result=0
+output=$(python youtube_dl/__main__.py --youtube-bypass-429 -s SiSV9SgUbj0 --wget-limit-rate 102400) || result=$?
+if [ ! "$result" = "0" ]; then
+    echo >&2 '[PatchProcess] ERROR: Youtube-DL youtube-429 patch is not correct.'
+else
+    sed -i -e '$a __version__ = __version__ + " _429-patch"' ./youtube_dl/version.py
+fi
+patch -t -p1 < ../niconico_sm.patch
+result=0
+output=$(python youtube_dl/__main__.py sm33203699 -s) || result=$?
+if [ ! "$result" = "0" ]; then
+    echo >&2 '[PatchProcess] ERROR: Youtube-DL nicovideo.jp sm,nm,so patch is not correct.'
+else
+    sed -i -e '$a __version__ = __version__ + ", _nicosm-patch"\n' ./youtube_dl/version.py
+fi
+
 pip install .
 cd ../../
 rm -rf patch

@@ -1400,6 +1400,8 @@ class MusicBot(discord.Client):
         groups = matches.groups() if matches is not None else []
         song_url = "https://www.youtube.com/playlist?" + groups[0] if len(groups) > 0 else song_url
 
+        ###プレイリスト判定
+
         if self.config._spotify:
             if 'open.spotify.com' in song_url:
                 song_url = 'spotify:' + re.sub('(http[s]?:\/\/)?(open.spotify.com)\/', '', song_url).replace('/', ':')
@@ -1546,6 +1548,7 @@ class MusicBot(discord.Client):
                 # But this is probably fine
 
             # If it's playlist
+            ##プレイリストの書類
             if 'entries' in info:
                 await self._do_playlist_checks(permissions, player, author, info['entries'])
 
