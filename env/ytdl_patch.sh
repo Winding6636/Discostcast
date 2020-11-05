@@ -34,15 +34,6 @@ else
     echo niconico sm patch.
     sed -i -e '$a __version__ = __version__ + ", _nicosm-patch"\n' ./youtube_dl/version.py
 fi
-patch -t -p1 < ../musicbot/ytdl_searchjson.patch
-result=0
-output=$(python youtube_dl/__main__.py ytsearch:とにほん -s) || result=$?
-if [ ! "$result" = "0" ]; then
-    echo >&2 '[PatchProcess] ERROR: Youtube-DL ytsearch json fix patch.'
-else
-    echo Youtube-ytsearch-json Patch.
-    sed -i -e '$a __version__ = __version__ + ", _ytsearch-patch"\n' ./youtube_dl/version.py
-fi
 
 pip install .
 cd ../../
