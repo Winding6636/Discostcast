@@ -10,8 +10,7 @@ mkdir -p patch && cd patch
 pip download --no-binary :all: youtube-dl
 mkdir youtube-dl && tar --strip-components 1 -xf youtube_dl-*.tar.gz  -C youtube-dl
 git clone https://gitlab.com/colethedj/youtube-dl-429-patch.git
-git clone https://github.com/Winding6636/DiscoMusicBot.git musicbot
-cd musicbot && git checkout patch && cd ../
+git clone -b patch https://github.com/Winding6636/DiscoMusicBot.git musicbot
 # パッチ
 echo :-: Patch RUN :-:
 cd youtube-dl
