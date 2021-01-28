@@ -1,8 +1,8 @@
 diff --git a/youtube_dl/extractor/extractors.py b/youtube_dl/extractor/extractors.py
-index 4b3092028..67a6a920d 100644
+index ab8d6a5a5..556b632e4 100644
 --- a/youtube_dl/extractor/extractors.py
 +++ b/youtube_dl/extractor/extractors.py
-@@ -728,7 +728,7 @@ from .nick import (
+@@ -773,7 +773,7 @@ from .nick import (
      NickNightIE,
      NickRuIE,
  )
@@ -12,13 +12,13 @@ index 4b3092028..67a6a920d 100644
  from .ninegag import NineGagIE
  from .ninenow import NineNowIE
 diff --git a/youtube_dl/extractor/niconico.py b/youtube_dl/extractor/niconico.py
-index eb07ca776..59fd4710a 100644
+index a85fc3d5c..d57d6eae5 100644
 --- a/youtube_dl/extractor/niconico.py
 +++ b/youtube_dl/extractor/niconico.py
-@@ -468,3 +468,8 @@ class NiconicoPlaylistIE(InfoExtractor):
-             'id': list_id,
-             'entries': entries,
-         }
+@@ -513,3 +513,8 @@ class NiconicoPlaylistIE(InfoExtractor):
+             entries, list_id, mylist.get('name'), mylist.get('description'))
+         result.update(self._parse_owner(mylist))
+         return result
 +
 +
 +class NiconicoShortIE(NiconicoIE):
