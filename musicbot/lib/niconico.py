@@ -4,10 +4,11 @@ import nndownload
 
 async def download(loop, song_url, output_path):
     try:
-        nndownload.execute("-n", "-g", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest", "-aq", "highest")
+        #nndownload.execute("-n", "-g", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest", "-aq", "highest")
+        nndownload.execute("-n", "-g", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest" )
     except:
         try:
-            nndownload.execute("-n", "-g", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest", "-aq", "highest")
+            nndownload.execute("-n", "-g", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest" )
         except:
             exit (1)
 
