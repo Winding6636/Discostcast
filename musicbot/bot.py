@@ -1167,12 +1167,21 @@ class MusicBot(discord.Client):
 
     async def cmd_bgmmode(self, player, value):
         """
-        Usage:  {command_prefix}bgmmode
+        Usage: {command_prefix}bgmmode
         BGM 枠 モード を管理するオプション
+        {command_prefix}bgmmode (on|y|enable | off|n|disable) [再生時間(s,秒)]
+                Ex.) {command_prefix}bgmmode on 120
+
+        この機能の状態: {command_prefix}bgmmode 適当な文字列
+                    {command_prefix}bgmmode (status|info)
+        
+        Streamkit用: {command_prefix}bgmmode streamkit [名称] [テロップに出す文字]
+                Ex.) {command_prefix}bgmmode streamkit hagu "今回のBGM枠～ なんでも  ～"
+        
         """
         value = value.lower()
-        bool_y = ['on', 'y', 'enable']
-        bool_n = ['off', 'n', 'disable']
+        bool_y = ['on', 'y', 'enable', 'true']
+        bool_n = ['off', 'n', 'disable', 'true']
         if value in bool_y:
             self.config.bgmmode = True
             return Response('BGM mode : ' + ['disabled', 'enabled'][self.config.bgmmode] + '.\n この`２`曲後からの処理もしくは追加された曲からBGM枠モードで `{0}` 秒カットされます。\n:warning: フルURLで貼ることをおすすめします。:warning: '.format(self.config.bgmlength))

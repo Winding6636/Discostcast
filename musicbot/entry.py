@@ -304,7 +304,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
         return mean_volume, max_volume
 
     async def bgmmode(self, entry, input_file):
-        cutime = '' + str(self.playlist.bot.config.bgmlength) + ' -af "afade=t=out:st=' + str(self.playlist.bot.config.bgmlength - 10) + ':d=5"'
+        cutime = '' + str(self.playlist.bot.config.bgmlength) + ' -af "afade=t=in:st=0:d=12,afade=t=out:st=' + str(self.playlist.bot.config.bgmlength - 10) + ':d=5"'
         output_file = 'audio_cache/cuting_' + input_file[12:] + ''
         log.debug('先頭から{0}秒で動画をカットします。 {1}'.format(self.playlist.bot.config.bgmlength, input_file))
         cmd = '"' + self.get('ffmpeg') + '" -i "' + input_file + '" -t ' + cutime + ' "' + output_file + '"'
@@ -320,7 +320,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                     log.debug('後処理')
         except Exception as e:
             log.error('ファイルが存在しません。前処理でエラーが発生しているかスルーされています。')
-            errmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-error","DL等エラーが発生しました、スキップします。")))
+            errmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-error",":-: DL等エラーが発生しました、対象楽曲をスキップします。:-:")))
 
         log.debug('{0}秒カット処理しました。'.format(self.playlist.bot.config.bgmlength))
 
