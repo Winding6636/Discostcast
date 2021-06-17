@@ -20,20 +20,33 @@ result=0
 output=$(python youtube_dl/__main__.py --youtube-bypass-429 -s SiSV9SgUbj0 --wget-limit-rate 102400) || result=$?
 if [ ! "$result" = "0" ]; then
     echo >&2 '[PatchProcess] ERROR: Youtube-DL youtube-429 patch is not correct.'
+    exit 1
 else
     echo Youtube-429-Too-Many-Requests Patch.
     sed -i -e '$a __version__ = __version__ + " _429-patch"' ./youtube_dl/version.py
+fi
+patch -t -p0 < ../musicbot/niconico_apifix.patch
+output=$(python youtube_dl/__main__.py https://www.nicovideo.jp/watch/sm33203699 -s) || result=$?
+if [ ! "$result" = "0" ]; then
+    echo >&2 '[PatchProcess] ERROR: Youtube-DL nicovideo.jp sm,nm,so patch is not correct.'
+    exit 1
+else
+    echo Niconico API 2103 Change patch.
+    sed -i -e '$a __version__ = __version__ + ", :NicoAPI2103Fix: "\n' ./youtube_dl/version.py
 fi
 patch -t -p1 < ../musicbot/niconico_sm.patch
 result=0
 output=$(python youtube_dl/__main__.py sm33203699 -s) || result=$?
 if [ ! "$result" = "0" ]; then
     echo >&2 '[PatchProcess] ERROR: Youtube-DL nicovideo.jp sm,nm,so patch is not correct.'
+    exit 1
 else
-    echo niconico sm patch.
-    sed -i -e '$a __version__ = __version__ + ", _nicosm-patch"\n' ./youtube_dl/version.py
+    echo Niconico smshort patch.
+    sed -i -e '$a __version__ = __version__ + ", _NicoSMshort"\n' ./youtube_dl/version.py
 fi
+
 
 pip install .
 cd ../../
 rm -rf patch
+exit 0
