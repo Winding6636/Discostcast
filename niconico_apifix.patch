@@ -1,0 +1,418 @@
+diff --git youtube_dl/extractor/niconico.py youtube_dl/extractor/niconico.py
+index a85fc3d5c..7a87fd39c 100644
+--- youtube_dl/extractor/niconico.py
++++ youtube_dl/extractor/niconico.py
+@@ -195,28 +195,48 @@ class NiconicoIE(InfoExtractor):
+         def yesno(boolean):
+             return 'yes' if boolean else 'no'
+ 
+-        session_api_data = api_data['video']['dmcInfo']['session_api']
+-        session_api_endpoint = session_api_data['urls'][0]
++        def extract_video_quality(video_quality):
++            try:
++                # Example: 480p | 0.9M
++                r = re.match('^.*\| ([0-9]*\.?[0-9]*[MK])', video_quality)
++                if r is None:
++                    return 0
++
++                vbr_with_unit = r.group(1)
++                unit = vbr_with_unit[-1]
++                video_bitrate = float(vbr_with_unit[:-1])
++
++                if unit == 'M':
++                    video_bitrate *= 1000000
++                elif unit == 'K':
++                    video_bitrate *= 1000
++
++                return video_bitrate
++            except:
++                # Should at least log or something here
++                return 0
++        session_api_data = api_data['media']['delivery']['movie']['session']
++        #session_api_endpoint = session_api_data['urls'][0]
+ 
+         format_id = '-'.join(map(lambda s: remove_start(s['id'], 'archive_'), [video_quality, audio_quality]))
+ 
+         session_response = self._download_json(
+-            session_api_endpoint['url'], video_id,
++            session_api_data['urls'][0]['url'], video_id,
+             query={'_format': 'json'},
+             headers={'Content-Type': 'application/json'},
+-            note='Downloading JSON metadata for %s' % format_id,
++            note='Response JSON metadata for %s' % format_id,
+             data=json.dumps({
+                 'session': {
+                     'client_info': {
+-                        'player_id': session_api_data['player_id'],
++                        'player_id': session_api_data['playerId'],
+                     },
+                     'content_auth': {
+-                        'auth_type': session_api_data['auth_types'][session_api_data['protocols'][0]],
+-                        'content_key_timeout': session_api_data['content_key_timeout'],
++                        'auth_type': session_api_data['authTypes'][session_api_data['protocols'][0]],
++                        'content_key_timeout': session_api_data['contentKeyTimeout'],
+                         'service_id': 'nicovideo',
+-                        'service_user_id': session_api_data['service_user_id']
++                        'service_user_id': session_api_data['serviceUserId']
+                     },
+-                    'content_id': session_api_data['content_id'],
++                    'content_id': session_api_data['contentId'],
+                     'content_src_id_sets': [{
+                         'content_src_ids': [{
+                             'src_id_to_mux': {
+@@ -229,7 +249,7 @@ class NiconicoIE(InfoExtractor):
+                     'content_uri': '',
+                     'keep_method': {
+                         'heartbeat': {
+-                            'lifetime': session_api_data['heartbeat_lifetime']
++                            'lifetime': session_api_data['heartbeatLifetime']
+                         }
+                     },
+                     'priority': session_api_data['priority'],
+@@ -239,14 +259,14 @@ class NiconicoIE(InfoExtractor):
+                             'http_parameters': {
+                                 'parameters': {
+                                     'http_output_download_parameters': {
+-                                        'use_ssl': yesno(session_api_endpoint['is_ssl']),
+-                                        'use_well_known_port': yesno(session_api_endpoint['is_well_known_port']),
++                                        'use_ssl': yesno(session_api_data['urls'][0]['isSsl']),
++                                        'use_well_known_port': yesno(session_api_data['urls'][0]['isWellKnownPort']),
+                                     }
+                                 }
+                             }
+                         }
+                     },
+-                    'recipe_id': session_api_data['recipe_id'],
++                    'recipe_id': session_api_data['recipeId'],
+                     'session_operation_auth': {
+                         'session_operation_auth_by_signature': {
+                             'signature': session_api_data['signature'],
+@@ -257,16 +277,32 @@ class NiconicoIE(InfoExtractor):
+                 }
+             }).encode())
+ 
+-        resolution = video_quality.get('resolution', {})
++        # dmc heartbeat
++        heartbeat_url = session_api_data['urls'][0]['url'] + '/' + session_response['data']['session']['id'] + '?_format=json&_method=PUT'
++        heartbeat_data = json.dumps(session_response['data']).encode()
++        heartbeat_interval = session_api_data['heartbeatLifetime'] / 5000
++
++        resolution = video_quality['metadata'].get('resolution', {})
++        vidQuality = video_quality['metadata'].get('bitrate')
++        is_low = 'low' in video_quality['id']
++        
+ 
+         return {
+             'url': session_response['data']['session']['content_uri'],
+             'format_id': format_id,
++            'format_note': 'DMC ' + video_quality['metadata']['label'],
+             'ext': 'mp4',  # Session API are used in HTML5, which always serves mp4
++            'acodec': 'aac',
++            'vcodec': 'h264',
+             'abr': float_or_none(audio_quality.get('bitrate'), 1000),
+-            'vbr': float_or_none(video_quality.get('bitrate'), 1000),
++            #Since the value is sometimes returned as 0 from the Internet, it seems that the correspondence at that time is like this
++            'vbr': float_or_none(vidQuality if vidQuality > 0 else extract_video_quality(video_quality['metadata'].get('label')), 1000),
+             'height': resolution.get('height'),
+             'width': resolution.get('width'),
++            'quality': -2 if is_low else None,
++            'heartbeat_url': heartbeat_url,
++            'heartbeat_data': heartbeat_data,
++            'heartbeat_interval': heartbeat_interval,
+         }
+ 
+     def _real_extract(self, url):
+@@ -275,89 +311,105 @@ class NiconicoIE(InfoExtractor):
+         # Get video webpage. We are not actually interested in it for normal
+         # cases, but need the cookies in order to be able to download the
+         # info webpage
+-        webpage, handle = self._download_webpage_handle(
+-            'http://www.nicovideo.jp/watch/' + video_id, video_id)
+-        if video_id.startswith('so'):
+-            video_id = self._match_id(handle.geturl())
+ 
+-        api_data = self._parse_json(self._html_search_regex(
+-            'data-api-data="([^"]+)"', webpage,
+-            'API data', default='{}'), video_id)
++        video_info_xml = self._download_xml(
++            'https://ext.nicovideo.jp/api/getthumbinfo/' + video_id,
++            video_id, note='Getting videoInfo xmlPage')
++
++        def get_video_info(items):
++            if not isinstance(items, list):
++                items = [items]
++            for item in items:
++                ret = xpath_text(video_info_xml, './/' + item)
++                if ret:
++                    return ret
++
++
++        extension = get_video_info('movie_type') or 'mp4'
++
++        formats = []
+ 
+-        def _format_id_from_url(video_url):
+-            return 'economy' if video_real_url.endswith('low') else 'normal'
++        def getWebpage(video_id, note=False):
++            webpage, handle = self._download_webpage_handle('https://www.nicovideo.jp/watch/' + video_id, video_id, note=note)
++            if video_id.startswith('so'):
++                video_id = self._match_id(handle.geturl())
+ 
+-        try:
+-            video_real_url = api_data['video']['smileInfo']['url']
+-        except KeyError:  # Flash videos
+-            # Get flv info
+-            flv_info_webpage = self._download_webpage(
++            return webpage
++
++        if extension in ['swf', 'flv']:
++            #FlashPlayer
++            self._set_cookie('nicovideo.jp', 'watch_flash', '1')
++
++            flv_info_api = self._download_webpage(
+                 'http://flapi.nicovideo.jp/api/getflv/' + video_id + '?as3=1',
+                 video_id, 'Downloading flv info')
+ 
+-            flv_info = compat_parse_qs(flv_info_webpage)
+-            if 'url' not in flv_info:
+-                if 'deleted' in flv_info:
+-                    raise ExtractorError('The video has been deleted.',
+-                                         expected=True)
+-                elif 'closed' in flv_info:
+-                    raise ExtractorError('Niconico videos now require logging in',
+-                                         expected=True)
+-                elif 'error' in flv_info:
+-                    raise ExtractorError('%s reports error: %s' % (
+-                        self.IE_NAME, flv_info['error'][0]), expected=True)
++            flv_info = compat_urlparse.parse_qs(flv_info_api)
++            webpage = getWebpage(video_id, note='Downloading videoInfo Page Flash')
++
++            watch_api_data_string = self._html_search_regex(
++                r'<div[^>]+id="watchAPIDataContainer"[^>]+>([^<]+)</div>',
++                webpage, 'watch api data', default=None)
++
++            if watch_api_data_string == None:
++                self._downloader.report_warning('Could not get flv info because you are not logged in or the endpoint is obsolete')
++
++            else:
++                watch_api = json.loads(watch_api_data_string)
++                player_flv_info = compat_parse_qs(compat_urllib_parse_unquote_plus(compat_urllib_parse_unquote_plus(watch_api['flashvars']['flvInfo'])))
++
++                if 'url' not in player_flv_info:
++                    if 'deleted' in flv_info:
++                        raise ExtractorError('The video has been deleted.', expected=True)
++                    elif 'closed' in flv_info:
++                        self._downloader.report_warning('Niconico videos is private or requires login.')
++                    elif 'error' in flv_info:
++                        raise ExtractorError('%s Error: %s' % (self.IE_NAME, flv_info['error'][0]), expected=True)
++                    else:
++                        raise ExtractorError('Unable to find flv URL')
++
+                 else:
+-                    raise ExtractorError('Unable to find video URL')
+-
+-            video_info_xml = self._download_xml(
+-                'http://ext.nicovideo.jp/api/getthumbinfo/' + video_id,
+-                video_id, note='Downloading video info page')
+-
+-            def get_video_info(items):
+-                if not isinstance(items, list):
+-                    items = [items]
+-                for item in items:
+-                    ret = xpath_text(video_info_xml, './/' + item)
+-                    if ret:
+-                        return ret
+-
+-            video_real_url = flv_info['url'][0]
+-
+-            extension = get_video_info('movie_type')
+-            if not extension:
+-                extension = determine_ext(video_real_url)
+-
+-            formats = [{
+-                'url': video_real_url,
+-                'ext': extension,
+-                'format_id': _format_id_from_url(video_real_url),
+-            }]
+-        else:
+-            formats = []
++                    for video_url in player_flv_info['url']:
++                        is_source = not video_url.endswith('low')
+ 
+-            dmc_info = api_data['video'].get('dmcInfo')
+-            if dmc_info:  # "New" HTML5 videos
+-                quality_info = dmc_info['quality']
++                        flash_cookies = self._get_cookies('https://nicovideo.jp')
++
++                        formats.append({
++                            'url': video_url,
++                            'ext': extension,
++                            'format_id': 'source' if is_source else 'flash_low',
++                            'format_note': 'Source flash video' if is_source else 'Low quality flash video',
++                            'acodec': 'mp3',
++                            'container': extension,
++                            'http_headers': {'Cookie': flash_cookies.output(header='', sep=';')},
++                            'quality': 10 if is_source else -2
++                        })
++
++
++        self._set_cookie('nicovideo.jp', 'watch_flash', '0')
++        webpage = getWebpage(video_id, note='Downloading HTML5 player webpage')
++
++        api_data = self._parse_json(self._html_search_regex(
++            'data-api-data="([^"]+)"', webpage,
++            'API data', default='{}'), video_id)
++
++        quality_info = api_data['media']['delivery']['movie']
++        if quality_info:  # "New" HTML5 videos
+                 for audio_quality in quality_info['audios']:
+                     for video_quality in quality_info['videos']:
+-                        if not audio_quality['available'] or not video_quality['available']:
++                        if not audio_quality['isAvailable'] or not video_quality['isAvailable']:
+                             continue
+                         formats.append(self._extract_format_for_quality(
+                             api_data, video_id, audio_quality, video_quality))
+ 
+-                self._sort_formats(formats)
+-            else:  # "Old" HTML5 videos
+-                formats = [{
+-                    'url': video_real_url,
+-                    'ext': 'mp4',
+-                    'format_id': _format_id_from_url(video_real_url),
+-                }]
+ 
+-            def get_video_info(items):
+-                return dict_get(api_data['video'], items)
++        self._sort_formats(formats, ['quality', 'height', 'width', 'tbr', 'abr', 'source_preference', 'format_id'])
++
+ 
+         # Start extracting information
+         title = get_video_info('title')
++        if not title:
++            api_data['video'].get('title')
+         if not title:
+             title = self._og_search_title(webpage, default=None)
+         if not title:
+@@ -368,15 +420,23 @@ class NiconicoIE(InfoExtractor):
+         watch_api_data_string = self._html_search_regex(
+             r'<div[^>]+id="watchAPIDataContainer"[^>]+>([^<]+)</div>',
+             webpage, 'watch api data', default=None)
+-        watch_api_data = self._parse_json(watch_api_data_string, video_id) if watch_api_data_string else {}
+-        video_detail = watch_api_data.get('videoDetail', {})
++        #watch_api_data = self._parse_json(watch_api_data_string, video_id) if watch_api_data_string else {}
++        #video_detail = watch_api_data.get('videoDetail', {})
+ 
+         thumbnail = (
+-            get_video_info(['thumbnail_url', 'thumbnailURL'])
++            get_video_info(['largeThumbnailURL', 'thumbnail_url', 'thumbnailURL'])
++            or api_data['video'].get('largeThumbnailURL')
++            or api_data['video'].get('thumbnailURL')
+             or self._html_search_meta('image', webpage, 'thumbnail', default=None)
+-            or video_detail.get('thumbnail'))
++            or video_detail.get('thumbnail')
++        )
+ 
+-        description = get_video_info('description')
++        description = (
++            api_data['video'].get('description')
++            or get_video_info('description')
++        )
++        
++        session_api_data = api_data['media']['delivery']['movie']['session']
+ 
+         timestamp = (parse_iso8601(get_video_info('first_retrieve'))
+                      or unified_timestamp(get_video_info('postedDateTime')))
+@@ -389,18 +449,23 @@ class NiconicoIE(InfoExtractor):
+                 video_detail['postedAt'].replace('/', '-'),
+                 delimiter=' ', timezone=datetime.timedelta(hours=9))
+ 
+-        view_count = int_or_none(get_video_info(['view_counter', 'viewCount']))
++        view_count = int_or_none(
++            api_data['video']['count'].get('view')
++        )
++
+         if not view_count:
+             match = self._html_search_regex(
+                 r'>Views: <strong[^>]*>([^<]+)</strong>',
+                 webpage, 'view count', default=None)
+             if match:
+                 view_count = int_or_none(match.replace(',', ''))
+-        view_count = view_count or video_detail.get('viewCount')
++        #view_count = view_count or video_detail.get('viewCount')
++
++        comment_count = (
++            api_data['video']['count'].get('comment')
++            or try_get(api_data, lambda x: x['thread']['commentCount'])
++        )
+ 
+-        comment_count = (int_or_none(get_video_info('comment_num'))
+-                         or video_detail.get('commentCount')
+-                         or try_get(api_data, lambda x: x['thread']['commentCount']))
+         if not comment_count:
+             match = self._html_search_regex(
+                 r'>Comments: <strong[^>]*>([^<]+)</strong>',
+@@ -408,10 +473,12 @@ class NiconicoIE(InfoExtractor):
+             if match:
+                 comment_count = int_or_none(match.replace(',', ''))
+ 
+-        duration = (parse_duration(
+-            get_video_info('length')
+-            or self._html_search_meta(
+-                'video:duration', webpage, 'video duration', default=None))
++        duration = (
++            api_data['video'].get('duration')
++            or parse_duration(
++                get_video_info('length')
++                or self._html_search_meta('video:duration', webpage, 'video duration', default=None)
++            )
+             or video_detail.get('length')
+             or get_video_info('duration'))
+ 
+@@ -420,19 +487,34 @@ class NiconicoIE(InfoExtractor):
+         # Note: cannot use api_data.get('owner', {}) because owner may be set to "null"
+         # in the JSON, which will cause None to be returned instead of {}.
+         owner = try_get(api_data, lambda x: x.get('owner'), dict) or {}
+-        uploader_id = get_video_info(['ch_id', 'user_id']) or owner.get('id')
+-        uploader = get_video_info(['ch_name', 'user_nickname']) or owner.get('nickname')
++        uploader_id = get_video_info(['ch_id', 'user_id']) or owner.get('id') or api_data.get('community', {}).get('id')
++        uploader = get_video_info(['ch_name', 'user_nickname']) or owner.get('nickname') or api_data.get('community', {}).get('name')
++
++        tags_nodes = video_info_xml.findall('.//tags/tag')
++        tags = list(map(lambda x: x.text, tags_nodes))
++
++        if len(tags) == 0:
++            tags = api_data['video'].get('tags') or []
++            
++        genre = get_video_info('genre')
+ 
+         return {
+             'id': video_id,
+             'title': title,
++            'original_title': api_data['video'].get('originalTitle'),
+             'formats': formats,
+-            'thumbnail': thumbnail,
++            'thumbnails': [ {
++                    'url': thumbnail,
++                    'ext': 'jpg'
++            } ],
+             'description': description,
++            'original_description': api_data['video'].get('originalDescription'),
+             'uploader': uploader,
+-            'timestamp': timestamp,
+             'uploader_id': uploader_id,
++            'timestamp': timestamp,
+             'view_count': view_count,
++            'tags': tags,
++            'genre': genre,
+             'comment_count': comment_count,
+             'duration': duration,
+             'webpage_url': webpage_url,
+@@ -440,7 +522,7 @@ class NiconicoIE(InfoExtractor):
+ 
+ 
+ class NiconicoPlaylistIE(InfoExtractor):
+-    _VALID_URL = r'https?://(?:www\.)?nicovideo\.jp/(?:user/\d+/)?mylist/(?P<id>\d+)'
++    _VALID_URL = r'https?://(?:www\.)?nicovideo\.jp/(?:my\/)?mylist/(?P<id>\d+)'
+ 
+     _TESTS = [{
+         'url': 'http://www.nicovideo.jp/mylist/27411728',
