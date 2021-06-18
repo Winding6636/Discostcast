@@ -184,7 +184,7 @@ index a85fc3d5c..7a87fd39c 100644
 -                elif 'error' in flv_info:
 -                    raise ExtractorError('%s reports error: %s' % (
 -                        self.IE_NAME, flv_info['error'][0]), expected=True)
-+            flv_info = compat_urlparse.parse_qs(flv_info_api)
++            flv_info = compat_parse_qs(flv_info_api)
 +            webpage = getWebpage(video_id, note='Downloading videoInfo Page Flash')
 +
 +            watch_api_data_string = self._html_search_regex(
