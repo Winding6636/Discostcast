@@ -46,7 +46,7 @@ else
 fi
 
 result=0
-patch -t -p1 < ../youtube-dl-429-patch/ytdl.patch || result=$?
+patch -t -p1 < ../musicbot/ytdl.patch || result=$?
 if [ ! "$result" = "0" ]; then
     echo >&2 '[PatchProcess] ERROR: Youtube-DL change to yt-dlp patch is not correct.'
     exit 1
