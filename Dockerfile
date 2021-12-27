@@ -16,6 +16,7 @@ RUN apk update \
   patch \
   gcc \
   libc-dev \
+  make \
 \
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
