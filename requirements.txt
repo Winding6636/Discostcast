@@ -1,4 +1,4 @@
-pynacl==1.2.1
+pynacl==1.4.0
 discord.py
 colorlog
 cffi --only-binary all; sys_platform == 'win32'

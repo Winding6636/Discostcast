@@ -45,16 +45,6 @@ else
     sed -i -e '$a __version__ = __version__ + ", _NicoSMshort"\n' ./youtube_dl/version.py
 fi
 
-result=0
-patch -t -p1 < ../musicbot/ytdl.patch || result=$?
-if [ ! "$result" = "0" ]; then
-    echo >&2 '[PatchProcess] ERROR: Youtube-DL change to yt-dlp patch is not correct.'
-    exit 1
-else
-    echo Youtube-DL change to yt-dlp Patch.
-    sed -i -e '$a __version__ = __version__ + " _yt-dlp"' ./youtube_dl/version.py
-fi
-
 pip install .
 cd ../../
 rm -rf patch

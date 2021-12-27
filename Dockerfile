@@ -1,4 +1,4 @@
-FROM python:3.7-alpine
+FROM python:3.7.15-alpine
 LABEL maintainer="Winding"
 
 # Const_pkg
@@ -14,9 +14,6 @@ RUN apk update \
   wget \
   curl \
   patch \
-  gcc \
-  libc-dev \
-  make \
 \
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
@@ -34,9 +31,10 @@ RUN  git clone -b modified https://github.com/Winding6636/DiscoMusicBot.git /usr
 &&git pull --tags
 # pip依存関係をインストールする
 RUN pip3 install --upgrade pip \
+&& SODIUM_INSTALL=system pip install pynacl \
 && pip3 install --no-cache-dir -r requirements.txt
 # nndownloadインスヨール
-RUN git clone https://github.com/AlexAplin/nndownload.git /tmp/nndownload \
+RUN git clone -b v1.11 https://github.com/AlexAplin/nndownload.git /tmp/nndownload \
     && pip install -r /tmp/nndownload/requirements.txt \
     && pip install /tmp/nndownload && rm -rf /tmp/nndownload
 ADD config /usr/src/musicbot/config
@@ -46,6 +44,7 @@ RUN chmod og-rw /root/.netrc
 # Patchs
 #ADD ./env/ytdl_patch.sh /usr/src/musicbot
 RUN sh ./env/ytdl_patch.sh
+RUN wget https://raw.githubusercontent.com/Winding6636/DiscoMusicBot/patch/ytdl.patch && patch -p1 < ytdl.patch
 
 #Cleanup
 RUN apk del .build-deps
