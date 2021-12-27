@@ -14,6 +14,8 @@ RUN apk update \
   wget \
   curl \
   patch \
+  gcc \
+  libc-dev \
 \
 # Build-deps_pkg
 && apk add --no-cache --virtual .build-deps \
