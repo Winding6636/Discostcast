@@ -304,15 +304,16 @@ class URLPlaylistEntry(BasePlaylistEntry):
         return mean_volume, max_volume
 
     async def bgmmode(self, entry, input_file):
+        '''
         log.debug('BGMモードの除外処理テスト')
         test = self.bgmexclusion
         log.debug(test)
         test = self.playlist.bot.bgmexclusion
         log.debug(test)
         log.debug(str(self.bgmexclusion))
-
-        log.debug('――――')
-
+        
+        log.everything('――――')
+        '''
         cutime = '' + str(self.playlist.bot.config.bgmlength) + ' -af "afade=t=in:st=0:d=20,afade=t=out:st=' + str(self.playlist.bot.config.bgmlength - 10) + ':d=5"'
         output_file = 'audio_cache/cuting_' + input_file[12:] + ''
         log.debug('先頭から{0}秒で動画をカットします。 {1}'.format(self.playlist.bot.config.bgmlength, input_file))
