@@ -1,10 +1,9 @@
-pynacl==1.4.0
+pynacl
 discord.py
 colorlog
 cffi --only-binary all; sys_platform == 'win32'
 youtube-dl
 yt-dlp
-#-e git+https://github.com/Winding6636/youtube-dl@modified_latest#egg=youtube-dl
 beautifulsoup4
 requests
 # Dockerもといsetup.pyでエラーを吐くためコメントアウト // Dockerfileで個別に入れている

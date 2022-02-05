@@ -304,35 +304,22 @@ class URLPlaylistEntry(BasePlaylistEntry):
         return mean_volume, max_volume
 
     async def bgmmode(self, entry, input_file):
-        '''
-        log.debug('BGMモードの除外処理テスト')
-        test = self.bgmexclusion
-        log.debug(test)
-        test = self.playlist.bot.bgmexclusion
-        log.debug(test)
-        log.debug(str(self.bgmexclusion))
-        
-        log.everything('――――')
-        '''
-        cutime = '' + str(self.playlist.bot.config.bgmlength) + ' -af "afade=t=in:st=0:d=15" -af "afade=t=out:st=' + str(self.playlist.bot.config.bgmlength - 10) + ':d=3"'
+        cutime = '' + str(self.playlist.bot.config.bgmlength) + ' -af "afade=t=in:st=0:d=6,afade=t=out:st=' + str(self.playlist.bot.config.bgmlength - 6) + ':d=6"'
         output_file = 'audio_cache/cuting_' + input_file[12:] + ''
         log.debug('先頭から{0}秒で動画をカットします。 {1}'.format(self.playlist.bot.config.bgmlength, input_file))
-        cmd = '"' + self.get('ffmpeg') + '" -i "' + input_file + '" -t ' + cutime + ' -c:v copy "' + output_file + '"'
+        cmd = '"' + self.get('ffmpeg') + '" -i "' + input_file + '" -t ' + str(self.playlist.bot.config.bgmlength) + ' -af "dynaudnorm=p=0.1,afade=t=in:st=0:d=6,afade=t=out:st=' + str(self.playlist.bot.config.bgmlength - 6) + ':d=6" -c:v copy "' + output_file + '"'
         output = await self.run_command(cmd)
         output = output.decode("utf-8")
         log.ffmpeg("Data from ffmpeg: {}".format(output))
 
         try:
-            os.path.isfile(output_file)
-            try:
+            if os.path.isfile(output_file):
                 os.rename(output_file,input_file)
-            finally:
-                    log.debug('後処理')
+        finally:
+                log.debug(':: 処理完了 {0}秒カット/ノーマライズ処理しました。 ::'.format(self.playlist.bot.config.bgmlength))
         except Exception as e:
-            log.error('ファイルが存在しません。前処理でエラーが発生しているかスルーされています。')
-            errmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-error",":-: DL等エラーが発生しました。正しく再生されないかスキップされます。:-:")))
-
-        log.debug('{0}秒カット処理しました。'.format(self.playlist.bot.config.bgmlength))
+            log.error(':: ファイルが存在しません。前処理でエラーが発生しているかスルーされています。 ::')
+            errmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-error",":-: ﾀﾞｳﾝﾛｰﾄﾞもしくは音声処理に失敗しました。正しく再生されないかスキップされます。:-:")))
 
     # noinspection PyShadowingBuiltins
     async def _really_download(self, entry, *, hash=False):
