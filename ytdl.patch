@@ -59,15 +59,3 @@ index 938115e..5ab534e 100644
  
  from .utils import get_header
  from .constructs import Serializable
-diff --git a/requirements.txt b/requirements.txt
-index 99f4062..cba1b7c 100644
---- a/requirements.txt
-+++ b/requirements.txt
-@@ -3,6 +3,7 @@ discord.py
- colorlog
- cffi --only-binary all; sys_platform == 'win32'
- youtube-dl
-+yt-dlp
- #-e git+https://github.com/Winding6636/youtube-dl@modified_latest#egg=youtube-dl
- beautifulsoup4
- requests
