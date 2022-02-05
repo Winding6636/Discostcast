@@ -59,9 +59,9 @@ if [ ! "$result" = "0" ]; then
     exit 1
 else
     echo  :: Niconico VideoId shortPatch.
-    sed -i -e '$a __version__ = __version__ + ", _nicoIDshort"\n' ./youtube_dl/version.py
+    sed -i -e '$a __version__ = __version__ + ", _nicoIDshort"\n' ./yt_dlp/version.py
 fi
-pip install.
+pip install .
 
 cd ../../
 rm -rf patch
