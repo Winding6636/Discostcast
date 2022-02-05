@@ -51,7 +51,7 @@ pip install .
 echo :-: Patch yt-dlp :-:
 cd ../yt-dlp
 sed -i -e '$a __version__ = __version__ + " modified:"' ./yt_dlp/version.py
-patch -t -p1 < ../musicbot/niconico_sm.patch
+patch -t -p1 < ../musicbot/ytdlp_nicosm.patch
 python devscripts/make_lazy_extractors.py
 output=$(python yt_dlp/__main__.py sm33203699 -s) || result=$?
 if [ ! "$result" = "0" ]; then
