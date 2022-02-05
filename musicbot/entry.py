@@ -315,11 +315,11 @@ class URLPlaylistEntry(BasePlaylistEntry):
         try:
             if os.path.isfile(output_file):
                 os.rename(output_file,input_file)
-        finally:
-            log.debug(':: 処理完了 {0}秒カット/ノーマライズ処理しました。 ::'.format(self.playlist.bot.config.bgmlength))
         except Exception as e:
             log.error(':: ファイルが存在しません。前処理でエラーが発生しているかスルーされています。 ::')
             errmsg = await self.playlist.bot.safe_send_message(entry.meta.get('channel', None), (self.playlist.bot.str.get("entry-error",":-: ﾀﾞｳﾝﾛｰﾄﾞもしくは音声処理に失敗しました。正しく再生されないかスキップされます。:-:")))
+        finally:
+                log.debug(':: 処理完了 {0}秒カット/ノーマライズ処理しました。 ::'.format(self.playlist.bot.config.bgmlength))
 
     # noinspection PyShadowingBuiltins
     async def _really_download(self, entry, *, hash=False):
