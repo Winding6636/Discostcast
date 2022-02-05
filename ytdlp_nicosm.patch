@@ -1,0 +1,25 @@
+diff --git a/yt_dlp/extractor/extractors.py b/yt_dlp/extractor/extractors.py
+index bd514f958..b603bf981 100644
+--- a/yt_dlp/extractor/extractors.py
++++ b/yt_dlp/extractor/extractors.py
+@@ -1005,6 +1005,7 @@ from .nick import (
+ 
+ from .niconico import (
+     NiconicoIE,
++    NiconicoShortIE,
+     NiconicoPlaylistIE,
+     NiconicoUserIE,
+     NicovideoSearchDateIE,
+diff --git a/yt_dlp/extractor/niconico.py b/yt_dlp/extractor/niconico.py
+index ee888e9d3..2e628f25f 100644
+--- a/yt_dlp/extractor/niconico.py
++++ b/yt_dlp/extractor/niconico.py
+@@ -792,3 +792,7 @@ class NiconicoUserIE(InfoExtractor):
+     def _real_extract(self, url):
+         list_id = self._match_id(url)
+         return self.playlist_result(self._entries(list_id), list_id, ie=NiconicoIE.ie_key())
++
++class NiconicoShortIE(NiconicoIE):
++    _VALID_URL = r'(?P<id>^(sm|nm|so)[0-9]+)'
++    pass
+\ No newline at end of file
