@@ -14,46 +14,14 @@ mkdir yt-dlp && tar --strip-components 1 -xf yt-dlp-*.tar.gz  -C yt-dlp
 git clone https://gitlab.com/colethedj/youtube-dl-429-patch.git
 git clone -b patch https://github.com/Winding6636/DiscoMusicBot.git patchfile
 # パッチ
-<< COMMENTOUT
-echo :-: Patch youtube-dl :-:
-cd youtube-dl
-sed -i -e '$a __version__ = __version__ + " modified:"' ./youtube_dl/version.py
-patch -t -p1 < ../youtube-dl-429-patch/youtube_dl_429.patch
-result=0
-#output=$(python youtube_dl/__main__.py --youtube-bypass-429 -s SiSV9SgUbj0 --wget-limit-rate 102400) || result=$?
-if [ ! "$result" = "0" ]; then
-    echo >&2 '[PatchProcess] ERROR: Youtube-DL youtube-429 patch is not correct.'
-    exit 1
-else
-    echo Youtube-429-Too-Many-Requests Patch.
-    sed -i -e '$a __version__ = __version__ + " _429-patch"' ./youtube_dl/version.py
-fi
-patch -t -p0 < ../patchfile/niconico_apifix.patch
-#output=$(python youtube_dl/__main__.py https://www.nicovideo.jp/watch/sm33203699 -s) || result=$?
-if [ ! "$result" = "0" ]; then
-    echo >&2 '[PatchProcess] ERROR: Youtube-DL nicovideo.jp sm,nm,so patch is not correct.'
-    exit 1
-else
-    echo Niconico API 2103 Change patch.
-    sed -i -e '$a __version__ = __version__ + ", :NicoAPI2103Fix: "\n' ./youtube_dl/version.py
-fi
-patch -t -p1 < ../patchfile/niconico_sm.patch
-result=0
-#output=$(python youtube_dl/__main__.py sm33203699 -s) || result=$?
-if [ ! "$result" = "0" ]; then
-    echo >&2 '[PatchProcess] ERROR: Youtube-DL nicovideo.jp sm,nm,so patch is not correct.'
-    exit 1
-else
-    echo Niconico smshort patch.
-    sed -i -e '$a __version__ = __version__ + ", _NicoSMshort"\n' ./youtube_dl/version.py
-fi
-pip install .
-COMMENTOUT
+echo :-: MusicBot Change DLoader youtube_dl to yt-dlp :-:
+cd ..
+patch -R -t -p1 < patch/patchfile/ytdl.patch
+cd patch
 
 echo :-: Patch yt-dlp :-:
-#cd ../yt-dlp
 cd ./yt-dlp
-sed -i -e '$a __version__ = __version__ + " modified:"' ./yt_dlp/version.py
+sed -i -e '$a __version__ = __version__ + ".modified"' ./yt_dlp/version.py
 patch -t -p1 < ../patchfile/ytdlp_nicosm.patch
 python devscripts/make_lazy_extractors.py
 result=0
@@ -63,7 +31,7 @@ if [ ! "$result" = "0" ]; then
     exit 1
 else
     echo  :: Niconico VideoId shortPatch.
-    sed -i -e '$a __version__ = __version__ + "_nicoIDshort"\n' ./yt_dlp/version.py
+    sed -i -e '$a __version__ = __version__ + ".nicoIDshort"\n' ./yt_dlp/version.py
 fi
 pip install .
 
