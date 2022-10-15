@@ -9,7 +9,7 @@ echo :-: Modified Patch Prov Run :-:
 mkdir -p patch && cd patch
 #pip download --no-binary :all: youtube-dl
 pip download --no-binary :all: yt-dlp
-mkdir youtube-dl && tar --strip-components 1 -xf youtube_dl-*.tar.gz  -C youtube-dl
+#mkdir youtube-dl && tar --strip-components 1 -xf youtube_dl-*.tar.gz  -C youtube-dl
 mkdir yt-dlp && tar --strip-components 1 -xf yt-dlp-*.tar.gz  -C yt-dlp
 git clone https://gitlab.com/colethedj/youtube-dl-429-patch.git
 git clone -b patch https://github.com/Winding6636/DiscoMusicBot.git musicbot
@@ -51,7 +51,7 @@ pip install .
 COMMENTOUT
 
 echo :-: Patch yt-dlp :-:
-cd ../yt-dlp
+cd ./yt-dlp
 sed -i -e '$a __version__ = __version__ + " modified:"' ./yt_dlp/version.py
 patch -t -p1 < ../musicbot/ytdlp_nicosm.patch
 python devscripts/make_lazy_extractors.py
