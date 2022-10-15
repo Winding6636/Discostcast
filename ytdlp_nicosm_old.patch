@@ -1,24 +1,23 @@
-diff --git a/yt_dlp/extractor/_extractors.py b/yt_dlp/extractor/_extractors.py
-index 8652ec54e..ff1dc2adf 100644
---- a/yt_dlp/extractor/_extractors.py
-+++ b/yt_dlp/extractor/_extractors.py
-@@ -1169,6 +1169,7 @@
-     NicovideoSearchIE,
-     NicovideoSearchURLIE,
-     NicovideoTagURLIE,
+diff --git a/yt_dlp/extractor/extractors.py b/yt_dlp/extractor/extractors.py
+index bd514f958..b603bf981 100644
+--- a/yt_dlp/extractor/extractors.py
++++ b/yt_dlp/extractor/extractors.py
+@@ -1005,6 +1005,7 @@ from .nick import (
+ 
+ from .niconico import (
+     NiconicoIE,
 +    NiconicoShortIE,
- )
- from .ninecninemedia import (
-     NineCNineMediaIE,
+     NiconicoPlaylistIE,
+     NiconicoUserIE,
+     NicovideoSearchDateIE,
 diff --git a/yt_dlp/extractor/niconico.py b/yt_dlp/extractor/niconico.py
-index 82b60b476..d96d525c1 100644
+index ee888e9d3..2e628f25f 100644
 --- a/yt_dlp/extractor/niconico.py
 +++ b/yt_dlp/extractor/niconico.py
-@@ -868,3 +868,8 @@ def _entries(self, list_id):
+@@ -792,3 +792,7 @@ class NiconicoUserIE(InfoExtractor):
      def _real_extract(self, url):
          list_id = self._match_id(url)
          return self.playlist_result(self._entries(list_id), list_id, ie=NiconicoIE.ie_key())
-+
 +
 +class NiconicoShortIE(NiconicoIE):
 +    _VALID_URL = r'(?P<id>^(sm|nm|so)[0-9]+)'
