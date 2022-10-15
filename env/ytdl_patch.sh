@@ -1,19 +1,20 @@
 #!/bin/sh
 ##  YoutubeDL Patch Script PiP
-##      Winding_feat.NKTN
+##      Winding_feat.T@9N
 ##
 ##  youtube fuck 429 patch , niconico sm video_id patch, ytsearch patch
 
 # 準備
 echo :-: Modified Patch Prov Run :-:
 mkdir -p patch && cd patch
-pip download --no-binary :all: youtube-dl
+#pip download --no-binary :all: youtube-dl
 pip download --no-binary :all: yt-dlp
 mkdir youtube-dl && tar --strip-components 1 -xf youtube_dl-*.tar.gz  -C youtube-dl
 mkdir yt-dlp && tar --strip-components 1 -xf yt-dlp-*.tar.gz  -C yt-dlp
 git clone https://gitlab.com/colethedj/youtube-dl-429-patch.git
 git clone -b patch https://github.com/Winding6636/DiscoMusicBot.git musicbot
 # パッチ
+<< COMMENTOUT
 echo :-: Patch youtube-dl :-:
 cd youtube-dl
 sed -i -e '$a __version__ = __version__ + " modified:"' ./youtube_dl/version.py
@@ -47,6 +48,7 @@ else
     sed -i -e '$a __version__ = __version__ + ", _NicoSMshort"\n' ./youtube_dl/version.py
 fi
 pip install .
+COMMENTOUT
 
 echo :-: Patch yt-dlp :-:
 cd ../yt-dlp
