@@ -56,6 +56,7 @@ cd ./yt-dlp
 sed -i -e '$a __version__ = __version__ + " modified:"' ./yt_dlp/version.py
 patch -t -p1 < ../musicbot/ytdlp_nicosm.patch
 python devscripts/make_lazy_extractors.py
+result=0
 output=$(python yt_dlp/__main__.py sm33203699 -s) || result=$?
 if [ ! "$result" = "0" ]; then
     echo >&2 '[PatchProcess] ERROR: yt-dlp nicovideo.jp sm,nm,so patch is not correct.'
