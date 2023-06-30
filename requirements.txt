@@ -1,5 +1,6 @@
 pynacl
-discord.py
+py-cord[voice]
+pip
 colorlog
 cffi --only-binary all; sys_platform == 'win32'
 youtube-dl
@@ -7,6 +8,7 @@ yt-dlp
 beautifulsoup4
 requests
 # Dockerもといsetup.pyでエラーを吐くためコメントアウト // Dockerfileで個別に入れている
-#nndownload
+nndownload
 aiohttp_socks #nndownload_req
 websockets
+idna

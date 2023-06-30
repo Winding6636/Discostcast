@@ -4,9 +4,10 @@ services:
     container_name: InstanceMusicBot
     build:  ./
     volumes:
-      - ./config:/usr/src/musicbot/config
-      - ./data:/usr/src/musicbot/data
-      - ./audio_cache:/usr/src/musicbot/audio_cache
+      - ./config:/musicbot/config
+      - ./data:/musicbot/data
+      - ./audio_cache:/musicbot/audio_cache
+      - ./logs:/musicbot/logs
     logging:
       options:
         max-size: "50k"

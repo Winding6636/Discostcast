@@ -1,0 +1,14 @@
+version: '3'
+services: 
+  musicbot:
+    container_name: InstanceMusicBot
+    build:  ./
+    volumes:
+      - ./config:/musicbot/config
+      - ./data:/musicbot/data
+      - ./audio_cache:/musicbot/audio_cache
+      - ./logs:/musicbot/logs
+    logging:
+      options:
+        max-size: "50k"
+        max-file: "5"
