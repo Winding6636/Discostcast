@@ -42,6 +42,7 @@ from .json import Json
 
 from .constants import VERSION as BOTVERSION
 from .constants import ytdl_ver
+from .constants import nndl_ver
 from .constants import DISCORD_MSG_CHAR_LIMIT, AUDIO_CACHE_PATH
 
 from typing import Optional
@@ -1247,7 +1248,7 @@ class MusicBot(discord.Client):
 
 
     async def cmd_about(self):
-        return Response("**:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:**\nBot Version: **{0}**\n\n**ModuleVersions:**\nDiscord.py : **{1}**\nYoutube-DL : **{2}**\n\n**:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:**".format(BOTVERSION, discord.__version__, ytdl_ver))
+        return Response("**:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:**\nBot Version: **{0}**\n\n**ModuleVersions:**\npy-cord(Discord) : **{1}**\nYoutube-DL : **{2}**\nnnDownload(nico) : **{3}**\n\n**:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:⋅:**".format(BOTVERSION, discord.__version__, ytdl_ver, nndl_ver))
 
     async def cmd_help(self, message, channel, command=None):
         """

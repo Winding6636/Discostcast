@@ -9,13 +9,13 @@ async def download(loop, session, song_url, output_path):
             nndownload.execute("--session-cookie", session, "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest" )
         else:
             #nndownload.execute("-n", "-g", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest", "-aq", "highest")
-            nndownload.execute("-n", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest" )
+            nndownload.execute("-n", "-q", "-o", output_path, song_url, "-vn", "-r 20", "-vq", "lowest", "-aq", "highest" )
     except:
         try:
             if session:
                 nndownload.execute("--session-cookie", session, "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest" )    
             else:
-                nndownload.execute("-n", "-q", "-o", output_path, song_url, "-r 20", "-vq", "lowest" )
+                nndownload.execute("-n", "-q", "-o", output_path, song_url, "-vn", "-r 10", "-vq", "lowest", "-aq", "lowest" )
         except:
             exit (1)
 

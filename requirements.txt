@@ -7,8 +7,8 @@ youtube-dl
 yt-dlp
 beautifulsoup4
 requests
-# Dockerもといsetup.pyでエラーを吐くためコメントアウト // Dockerfileで個別に入れている
-nndownload
+#nndownload
+git+https://github.com/Winding6636/nndownload
 aiohttp_socks #nndownload_req
 websockets
 idna

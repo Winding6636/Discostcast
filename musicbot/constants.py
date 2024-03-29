@@ -13,3 +13,8 @@ try:
   ytdl_ver = subprocess.check_output(["yt-dlp","--version"]).decode("ascii").strip()
 except Exception:
   ytdl_ver = "yt-dlp No Install"
+
+try:
+  nndl_ver = subprocess.check_output(["nndownload","-v"]).decode("ascii").strip()
+except Exception:
+  nndl = "nndownload Version NotFound."
