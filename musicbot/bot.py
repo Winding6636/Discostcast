@@ -1607,21 +1607,21 @@ class MusicBot(discord.Client):
                     # because info might be a playlist and thing that's broke it might be individual entry
                     try:
                         #URL追加時のエラー回避のための待機
-                        if self.config.bgmmode:
-                            urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
-                            randtime = random.randint(6,10)
-                            if (re.search('^(sm|nm|so)', song_url)):
-                                await asyncio.sleep(randtime)
-                            elif ( (str(urlpattern.search(str(song_url)).group(1))) == 'nicovideo.jp'):
-                                await asyncio.sleep(randtime)
-                            elif (re.search('nico.ms', song_url)):
-                                await asyncio.sleep(randtime)
+                        #if self.config.bgmmode:
+                            #urlpattern = re.compile(r"https?:[/][/][A-Za-z0-9\-.]{0,62}?\.([A-Za-z0-9\-.]{1,255})/?[A-Za-z0-9.\-?=#%/]*")
+                            #randtime = random.randint(6,10)
+                            #if (re.search('^(sm|nm|so)', song_url)):
+                                #await asyncio.sleep(randtime)
+                            #elif ( (str(urlpattern.search(str(song_url)).group(1))) == 'nicovideo.jp'):
+                                #await asyncio.sleep(randtime)
+                            #elif (re.search('nico.ms', song_url)):
+                                #await asyncio.sleep(randtime)
                         
                         info_process = await self.downloader.extract_info(player.playlist.loop, song_url, download=False)
                     except:
                         info_process = None
 
-                    log.everything(info) #ytdl_webpage
+                    #log.everything(info) #ytdl_webpage
 
                     if info_process and info and info_process.get('_type', None) == 'playlist' and 'entries' not in info and not info.get('url', '').startswith('ytsearch'):
                         use_url = info_process.get('webpage_url', None) or info_process.get('url', None)
