@@ -4921,8 +4921,6 @@ class MusicBot(discord.Client):
         Call the bot to the summoner's voice channel.
         """
 
-        # @TheerapakG: Maybe summon should have async lock?
-
         lock_key = f"summon:{guild.id}"
 
         if self.aiolocks[lock_key].locked():
@@ -4931,24 +4929,32 @@ class MusicBot(discord.Client):
         async with self.aiolocks[lock_key]:
             log.debug("Summon lock acquired for: %s", lock_key)
 
-            if not chperms.connect:
-                log.warning("Cannot join channel '{0}', no permission.".format(author.voice.channel.name))
+            if not author.voice or not author.voice.channel:
                 raise exceptions.CommandError(
-                    self.str.get('cmd-summon-noperms-connect', "Cannot join channel `{0}`, no permission to connect.").format(author.voice.channel.name),
-                    expire_in=25
+                    self.str.get(
+                        "cmd-summon-novc",
+                        "You are not connected to voice. Try joining a voice channel!",
+                    )
                 )
 
-            elif not chperms.speak:
-                log.warning("Cannot join channel '{0}', no permission to speak.".format(author.voice.channel.name))
-                raise exceptions.CommandError(
-                    self.str.get('cmd-summon-noperms-speak', "Cannot join channel `{0}`, no permission to speak.").format(author.voice.channel.name),
-                    expire_in=25
+            player = self.get_player_in(guild)
+            if player and player.voice_client and guild == author.voice.channel.guild:
+                # NOTE:  .move_to() does not support setting self-deafen flag,
+                # nor respect flags set in initial connect call.
+                # await player.voice_client.move_to(author.voice.channel)
+                await guild.change_voice_state(
+                    channel=author.voice.channel,
+                    self_deaf=self.config.self_deafen,
+                )
+            else:
+                player = await self.get_player(
+                    author.voice.channel,
+                    create=True,
+                    deserialize=self.config.persistent_queue,
                 )
 
-            player = await self.get_player(author.voice.channel, create=True, deserialize=self.config.persistent_queue)
-
-            if player.is_stopped:
-                player.play()
+                if player.is_stopped:
+                    player.play()
 
             log.info(
                 "Joining %s/%s",
@@ -7723,11 +7729,11 @@ class MusicBot(discord.Client):
         sentmsg = response = None
 
         try:
-            if (
-                user_permissions.ignore_non_voice
-                and command in user_permissions.ignore_non_voice
-            ):
-                await self._check_ignore_non_voice(message)
+            #if (
+                #user_permissions.ignore_non_voice
+                #and command in user_permissions.ignore_non_voice
+            #):
+                #await self._check_ignore_non_voice(message)
 
             # populate the existing command signature args.
             handler_kwargs: Dict[str, Any] = {}
@@ -7759,9 +7765,14 @@ class MusicBot(discord.Client):
                 else:
                     # TODO: enable ignore-non-voice commands to work here
                     # by looking for the first available VC if author has none.
-                    raise exceptions.CommandError(
-                        "This command requires you to be in a Guild Voice channel."
-                    )
+                    if message.guild:
+                        handler_kwargs["player"] = self.get_player_in(message.guild)
+                    else:
+                        handler_kwargs["player"] = None
+                    
+                    #raise exceptions.CommandError(
+                        #"This command requires you to be in a Guild Voice channel."
+                    #)
 
             # this is the optional-player arg.
             if params.pop("_player", None):
