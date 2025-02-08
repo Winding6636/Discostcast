@@ -1,10 +1,14 @@
 pynacl
-py-cord[voice]
+#discord.py [voice, speed] >= 2.4.0
+discord.py [voice, speed] @ git+https://github.com/Rapptz/discord.py
+#py-cord[voice]
 pip
-colorlog
-cffi --only-binary all; sys_platform == 'win32'
-youtube-dl
 yt-dlp
+colorlog
+colorama >= 0.4.6; sys_platform == 'win32'
+cffi --only-binary all; sys_platform == 'win32'
+certifi
+configupdater
 beautifulsoup4
 requests
 #nndownload

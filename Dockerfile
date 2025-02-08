@@ -4,29 +4,32 @@ LABEL maintainer="Winding"
 # Add project source
 WORKDIR /musicbot
 COPY . ./
-# Const_pkg
-RUN apk update \
-&& apk add --no-cache \
-  ca-certificates \
-  ffmpeg \
-  opus-dev \
-  python3 \
-  libsodium-dev \
-  bash \
-  git \
-  wget \
-  curl \
-  patch \
-\
-# Build-deps_pkg
+
+# Install build dependencies
 && apk add --no-cache --virtual .build-deps \
   gcc \
+  git \
   g++ \
   libc-dev \
   libffi-dev \
   make \
   musl-dev \
   python3-dev
+
+# Install dependencies
+RUN apk update && apk add --no-cache \
+  ca-certificates \
+  ffmpeg \
+  opus-dev \
+  libffi \
+  libsodium \
+  gcc \
+  bash \
+  git \
+  wget \
+  curl \
+  patch \
+
 
 #Scripts
 WORKDIR /musicbot

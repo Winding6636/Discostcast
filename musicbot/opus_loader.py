@@ -1,13 +1,17 @@
 from discord import opus
 
-OPUS_LIBS = ['libopus-0.x86.dll', 'libopus-0.x64.dll', 'libopus-0.dll', 'libopus.so.0', 'libopus.0.dylib']
 
-def load_opus_lib(opus_libs=OPUS_LIBS):
-    for opus_lib in opus_libs:
-        try:
-            opus.load_opus(opus_lib)
-            return
-        except OSError:
-            pass
+def load_opus_lib() -> None:
+    """
+    Take steps needed to load opus library through discord.py
+    """
+    if opus.is_loaded():
+        return
 
-    raise RuntimeError('Could not load an opus lib. Tried %s' % (', '.join(opus_libs)))
+    try:
+        opus._load_default()  # pylint: disable=protected-access
+        return
+    except OSError:
+        pass
+
+    raise RuntimeError("Could not load an opus lib.")
