@@ -362,22 +362,11 @@ class Downloader:
         :raises: yt_dlp.networking.exceptions.RequestError
             as a base exception for any networking errors raised by yt_dlp.
         """
+
         # handle local media playback without ever touching ytdl and friends.
         # We do this here so auto playlist features can take advantage of this as well.
-        if self.bot.config.enable_local_media and song_subject.lower().startswith(
-            "file://"
-        ):
+        if self.bot.config.enable_local_media and song_subject.lower().startswith( "file://" ):
             return self._return_local_media(song_subject)
-
-        if song_subject.lower().startswith(
-            "nico.ms"
-        ):
-            return self.nico_extract(song_subject)
-            
-        if song_subject.lower().startswith(
-            "www.nicovideo.jp"
-        ):
-            return self.nico_extract(song_subject)
 
         # Hash the URL for use as a unique ID in file paths.
         # but ignore services with multiple URLs for the same media.
@@ -576,81 +565,6 @@ class Downloader:
             self.thread_pool,
             functools.partial(self.safe_ytdl.extract_info, *args, **kwargs),
         )
-
-    async def nico_extract(self, song_subject: str) -> "YtdlpResponseDict":
-
-        data = await self._filtered_extract_info(
-            song_subject,
-            *args,
-            **kwargs,
-            # just (ab)use a ytdlp internal thing, a tiny bit...
-            extra_info={
-                "qhash": song_subject_hash,
-            },
-        )
-
-        if not data:
-            raise ExtractionError("Song info extraction returned no data.")
-
-        # always get headers for our downloadable.
-        headers = await self.get_url_headers(data.get("url", song_subject))
-
-        # if we made it here, put our request data into the extraction.
-        data["__input_subject"] = song_subject
-        data["__header_data"] = headers or None
-        data["__expected_filename"] = self.ytdl.prepare_filename(data)
-
-        #save_path = "" + self.download_folder + "/{id}.mp4"
-        #id = re.search(r'(sm|nm|so)[0-9]+',data["__expected_filename"])
-        #if id != None:
-            #save_path = "audio_cache/" + id.group() + ".mp4"
-        #else:
-            #id = re.search(r'[0-9]+',data["__expected_filename"])
-            #save_path = "audio_cache/" + id.group() + ".mp4"
-        
-        log.everything("#[PATH]# : %s",song_url)
-        #log.everything("#[PATH]# : %s",save_path)
-        log.everything("#[PATH]# : %s",data["__expected_filename"])
-        #log.debug("#[PATH]# : %s",rename_path)
-
-        def filechkpass():
-            log.debug("FileExistenceCheck")
-            try:
-                os.path.isfile(data["__expected_filename"])
-            except ZeroDivisionError:
-                os.remove(data["__expected_filename"])
-
-        def get_run():
-            retime = [ 20, 30, 120, 240, 320 ]
-            for _ in retime:
-                try:
-                    subprocess.call(["python", "./musicbot/lib/niconico.py", config.niconico_session, song_subject, data["__expected_filename"]],timeout=_)
-                    break
-                except subprocess.TimeoutExpired as e:
-                    filechkpass()
-                    log.debug("[DownloadProcess] : Timeout. - " + str(_) + "s - Retry...")
-                    time.sleep(3)
-                except:
-                    filechkpass()
-                    log.debug("[DownloadProcess] :  Download Error...")
-                    time.sleep(3)
-
-        with concurrent.futures.ThreadPoolExecutor() as pool:
-            await loop.run_in_executor(pool, functools.partial(get_run))
-        
-        #try:
-            #os.path.isfile(save_path)
-            #try:
-                #os.rename(save_path,output_path)
-            #except:
-                #pass
-        #except Exception as e:
-            #log.error("[DownloadProcess] :  Download Error... ― ダウンロードに失敗しました。")
-            #result = False
-        #else:
-            #result = True
-
-        return  YtdlpResponseDict(data)
 
     def _return_local_media(self, song_subject: str) -> "YtdlpResponseDict":
         """Verifies local media files and returns suitable data for local entries."""
