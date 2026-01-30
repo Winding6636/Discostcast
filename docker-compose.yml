@@ -8,6 +8,9 @@ services:
       - ./data:/musicbot/data
       - ./audio_cache:/musicbot/audio_cache
       - ./logs:/musicbot/logs
+    network_mode: "host"
+    restart: unless-stopped
+    cpu_shares: 1024
     logging:
       options:
         max-size: "50k"
