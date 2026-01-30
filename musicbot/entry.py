@@ -249,16 +249,24 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 aopts = f"-af atempo={self.playback_speed:.3f}"
 
         if aopts:
-            return f"{aopts} -vn"
+            if "-af " in aopts:
+                return f"{aopts.replace('-af ', '-af aresample=async=1,', 1)} -vn"
+            return f"{aopts} -af aresample=async=1 -vn"
 
-        return "-vn"
+        return "-vn -af aresample=async=1"
 
     @property
     def boptions(self) -> str:
         """Before input options for ffmpeg to use with this entry."""
+        args = []
+        # Only use reconnect options if we are streaming from network (not downloaded)
+        if not self.is_downloaded:
+            args.append("-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5")
+        
         if self._start_time is not None:
-            return f"-ss {self._start_time}"
-        return ""
+             args.append(f"-ss {self._start_time}")
+        
+        return " ".join(args)
 
     @property
     def from_auto_playlist(self) -> bool:
@@ -1077,9 +1085,11 @@ class LocalFilePlaylistEntry(BasePlaylistEntry):
                 aopts = f"-af atempo={self.playback_speed:.3f}"
 
         if aopts:
-            return f"{aopts} -vn"
+            if "-af " in aopts:
+                return f"{aopts.replace('-af ', '-af aresample=async=1,', 1)} -vn"
+            return f"{aopts} -af aresample=async=1 -vn"
 
-        return "-vn"
+        return "-vn -af aresample=async=1"
 
     @property
     def boptions(self) -> str:
