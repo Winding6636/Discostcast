@@ -371,6 +371,12 @@ class MusicBot(discord.Client):
             ping_status = await self._test_network_via_http(ping_target)
         else:
             ping_status = await self._test_network_via_ping(ping_target)
+
+            # If system ping failed (and we aren't already forced to HTTP), try HTTP fallback
+            if ping_status != 0 and not self._ping_use_http:
+                log.warning("System ping failed to %s. Falling back to HTTP check.", ping_target)
+                ping_status = await self._test_network_via_http(ping_target)
+
             if self._ping_use_http:
                 ping_status = await self._test_network_via_http(ping_target)
 
