@@ -376,6 +376,10 @@ class MusicBot(discord.Client):
             if ping_status != 0 and not self._ping_use_http:
                 log.warning("System ping failed to %s. Falling back to HTTP check.", ping_target)
                 ping_status = await self._test_network_via_http(ping_target)
+                
+                if ping_status == 0:
+                    log.info("Switching to HTTP network check mode due to persistent ping failure.")
+                    self._ping_use_http = True
 
             if self._ping_use_http:
                 ping_status = await self._test_network_via_http(ping_target)
