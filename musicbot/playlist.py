@@ -474,6 +474,7 @@ class Playlist(EventEmitter, Serializable):
         self.emit(
             "entry-added", playlist=self, entry=entry, defer_serialize=defer_serialize
         )
+        self._scan_prerequest_downloads()
 
     async def get_next_entry(self) -> Any:
         """
@@ -493,6 +494,27 @@ class Playlist(EventEmitter, Serializable):
 
         return await entry.get_ready_future()
 
+    def _scan_prerequest_downloads(self) -> None:
+        """
+        Scans the queue and pre-downloads the configured number of songs.
+        """
+        if not self.bot.config.pre_download_next_song:
+            return
+
+        if not self.entries:
+            return
+
+        count = self.bot.config.pre_download_next_song_count
+        next_entries = list(islice(self.entries, 0, count))
+
+        for i, next_entry in enumerate(next_entries):
+            # Checking if the entry is already downloaded or downloading.
+            if not next_entry.is_downloaded and not next_entry._is_downloading:
+                log.everything(  # type: ignore[attr-defined]
+                    "Pre-downloading track [%s/%s]: %r", i + 1, count, next_entry
+                )
+                next_entry.get_ready_future()
+
     async def _pre_download_entry_after_next(self, last_entry: EntryTypes) -> None:
         """
         Enforces a delay before doing pre-download of the "next" song.
@@ -501,19 +523,8 @@ class Playlist(EventEmitter, Serializable):
         if not self.bot.config.pre_download_next_song:
             return
 
-        if not self.entries:
-            return
-
-        # get the next entry to pre-download before we wait.
-        next_entry = self.peek()
-
         await asyncio.sleep(DEFAULT_PRE_DOWNLOAD_DELAY)
-
-        if next_entry and next_entry != last_entry:
-            log.everything(  # type: ignore[attr-defined]
-                "Pre-downloading next track:  %r", next_entry
-            )
-            next_entry.get_ready_future()
+        self._scan_prerequest_downloads()
 
     def peek(self) -> Optional[EntryTypes]:
         """

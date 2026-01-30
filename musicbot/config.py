@@ -443,6 +443,18 @@ class Config:
                 "Currently this option does not apply to auto-playlist or songs added to an empty queue."
             ),
         )
+        self.pre_download_next_song_count: int = self.register.init_option(
+            section="MusicBot",
+            option="PreDownloadNextSongCount",
+            dest="pre_download_next_song_count",
+            default=ConfigDefaults.pre_download_next_song_count,
+            getter="getint",
+            comment=(
+                "Number of songs to pre-download in advance.\n"
+                "Requires PreDownloadNextSong to be enabled.\n"
+                "Defaults to 1."
+            ),
+        )
         self.status_message: str = self.register.init_option(
             section="MusicBot",
             option="StatusMessage",
@@ -1347,6 +1359,7 @@ class ConfigDefaults:
 
     ytdlp_use_oauth2: bool = False
     pre_download_next_song: bool = True
+    pre_download_next_song_count: int = 1
 
     song_blocklist: Set[str] = set()
     user_blocklist: Set[int] = set()

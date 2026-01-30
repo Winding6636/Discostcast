@@ -201,6 +201,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
         info: YtdlpResponseDict,
         author: Optional["discord.Member"] = None,
         channel: Optional[GuildMessageableChannels] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Create URL Playlist entry that will be downloaded for playback.
@@ -228,6 +229,10 @@ class URLPlaylistEntry(BasePlaylistEntry):
 
         self.author: Optional["discord.Member"] = author
         self.channel: Optional[GuildMessageableChannels] = channel
+        
+        self.author_name: Optional[str] = kwargs.get("author_name", None)
+        if self.author and not self.author_name:
+            self.author_name = self.author.display_name
 
         self._aopt_eq: str = ""
 
@@ -314,6 +319,7 @@ class URLPlaylistEntry(BasePlaylistEntry):
                 "downloaded": self.is_downloaded,
                 "filename": self.filename,
                 "author_id": self.author.id if self.author else None,
+                "author_name": self.author_name,
                 "channel_id": self.channel.id if self.channel else None,
                 "aoptions": self.aoptions,
             }
@@ -404,7 +410,9 @@ class URLPlaylistEntry(BasePlaylistEntry):
             else:
                 author = None
 
-            entry = cls(playlist, info, author=author, channel=channel)
+            author_name = raw_json.get("author_name", None)
+
+            entry = cls(playlist, info, author=author, channel=channel, author_name=author_name)
             entry.filename = filename
 
             return entry
@@ -831,6 +839,7 @@ class StreamPlaylistEntry(BasePlaylistEntry):
         info: YtdlpResponseDict,
         author: Optional["discord.Member"] = None,
         channel: Optional[GuildMessageableChannels] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Create Stream Playlist entry that will be sent directly to ffmpeg for playback.
@@ -847,6 +856,10 @@ class StreamPlaylistEntry(BasePlaylistEntry):
 
         self.author: Optional["discord.Member"] = author
         self.channel: Optional[GuildMessageableChannels] = channel
+
+        self.author_name: Optional[str] = kwargs.get("author_name", None)
+        if self.author and not self.author_name:
+            self.author_name = self.author.display_name
 
         self.filename: str = self.url
 
@@ -913,6 +926,7 @@ class StreamPlaylistEntry(BasePlaylistEntry):
                 "info": self.info.data,
                 "filename": self.filename,
                 "author_id": self.author.id if self.author else None,
+                "author_name": self.author_name,
                 "channel_id": self.channel.id if self.channel else None,
             }
         )
@@ -993,7 +1007,9 @@ class StreamPlaylistEntry(BasePlaylistEntry):
             else:
                 author = None
 
-            entry = cls(playlist, info, author=author, channel=channel)
+            author_name = raw_json.get("author_name", None)
+
+            entry = cls(playlist, info, author=author, channel=channel, author_name=author_name)
             entry.filename = filename
             return entry
         except (ValueError, KeyError, TypeError) as e:
@@ -1020,6 +1036,7 @@ class LocalFilePlaylistEntry(BasePlaylistEntry):
         info: YtdlpResponseDict,
         author: Optional["discord.Member"] = None,
         channel: Optional[GuildMessageableChannels] = None,
+        **kwargs: Any,
     ) -> None:
         """
         Create URL Playlist entry that will be downloaded for playback.
@@ -1040,6 +1057,10 @@ class LocalFilePlaylistEntry(BasePlaylistEntry):
 
         self.author: Optional["discord.Member"] = author
         self.channel: Optional[GuildMessageableChannels] = channel
+
+        self.author_name: Optional[str] = kwargs.get("author_name", None)
+        if self.author and not self.author_name:
+            self.author_name = self.author.display_name
 
         self._aopt_eq: str = ""
 
@@ -1125,6 +1146,7 @@ class LocalFilePlaylistEntry(BasePlaylistEntry):
                 "info": self.info.data,
                 "filename": self.filename,
                 "author_id": self.author.id if self.author else None,
+                "author_name": self.author_name,
                 "channel_id": self.channel.id if self.channel else None,
                 "aoptions": self.aoptions,
             }
@@ -1215,7 +1237,9 @@ class LocalFilePlaylistEntry(BasePlaylistEntry):
             else:
                 author = None
 
-            entry = cls(playlist, info, author=author, channel=channel)
+            author_name = raw_json.get("author_name", None)
+
+            entry = cls(playlist, info, author=author, channel=channel, author_name=author_name)
             entry.filename = filename
 
             return entry
