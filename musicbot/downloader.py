@@ -71,7 +71,9 @@ ytdl_format_options_immutable = MappingProxyType(
         "wget-limit-rate": "8191",
         "--rm-cache-dir": True,
         "rm-cache-dir": True,
-        "js_runtimes": {"node": {}},
+        # android_vr client gets HTTP 403'd by YouTube; prefer clients that
+        # solve the JS challenge via deno (see downloader.py's deno setup).
+        "extractor_args": {"youtube": {"player_client": ["web_embedded", "default", "-android_vr"]}},
     }
 )
 
