@@ -1,4 +1,4 @@
-FROM python:3.10.11-alpine
+FROM python:3.10-alpine3.20
 LABEL maintainer="Winding"
 
 WORKDIR /musicbot
