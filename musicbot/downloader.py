@@ -70,7 +70,8 @@ ytdl_format_options_immutable = MappingProxyType(
         "--youtube-bypass-429": True,
         "wget-limit-rate": "8191",
         "--rm-cache-dir": True,
-        "rm-cache-dir": True
+        "rm-cache-dir": True,
+        "js_runtimes": {"node": {}},
     }
 )
 
