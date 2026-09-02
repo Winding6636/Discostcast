@@ -27,18 +27,19 @@ RUN apk update \
     python3-dev
 
 # yt-dlp requires deno >= 2.3.0 to solve YouTube's JS challenges (EJS).
-# Alpine 3.20's own deno package (1.43.5) is too old. Pull a newer, version-pinned
-# deno plus its newer shared-lib deps from edge, WITHOUT adding edge to
+# Alpine 3.20's own deno package (1.43.5) is too old. Pull a newer deno plus
+# its newer shared-lib deps from edge, WITHOUT adding edge to
 # /etc/apk/repositories permanently -- that previously caused apk to pull
 # unrelated packages (e.g. bash) from edge too and broke the image.
-RUN apk add --no-cache \
+# Versions are intentionally NOT pinned to an exact -rN revision: edge is a
+RUN apk add -u --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
-    'deno=2.7.4-r2' \
-    'libssl3=3.5.7-r0' \
-    'libcrypto3=3.5.7-r0' \
-    'sqlite-libs=3.53.4-r0' \
-    'icu-libs=78.1-r0'
+    icu-libs libssl3 libcrypto3 sqlite-libs \
+  && apk add --no-cache \
+    --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
+    --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
+    deno
 
 #Scripts
 WORKDIR /musicbot
