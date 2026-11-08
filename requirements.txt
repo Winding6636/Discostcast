@@ -1,6 +1,9 @@
 pynacl
 #discord.py [voice, speed] @ git+https://github.com/Rapptz/discord.py
 discord.py[voice,speed]~=2.7.1
+# davey 0.2.0 (2026-11-02) changed the DAVE key-transition API, which discord.py 2.7.1 does not
+# support yet -> voice connects but plays silence. Keep <0.2 until discord.py supports 0.2.x.
+davey>=0.1.7,<0.2
 #py-cord[voice]
 pip
 yt-dlp
