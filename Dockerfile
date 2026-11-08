@@ -32,6 +32,7 @@ RUN apk update \
 # /etc/apk/repositories permanently -- that previously caused apk to pull
 # unrelated packages (e.g. bash) from edge too and broke the image.
 # Versions are intentionally NOT pinned to an exact -rN revision: edge is a
+# rolling repo, so pinned revisions go stale and stop resolving within weeks.
 RUN apk add -u --no-cache \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/main \
     --repository=https://dl-cdn.alpinelinux.org/alpine/edge/community \
